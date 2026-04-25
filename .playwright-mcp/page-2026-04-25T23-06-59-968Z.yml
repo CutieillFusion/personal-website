@@ -1,0 +1,1628 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Dylan Norquist" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Home" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - link "About" [ref=e7] [cursor=pointer]:
+          - /url: /about
+        - link "Projects" [ref=e8] [cursor=pointer]:
+          - /url: /projects
+        - link "Blog" [ref=e9] [cursor=pointer]:
+          - /url: /blog
+        - link "Resume" [ref=e10] [cursor=pointer]:
+          - /url: /resume
+  - main [ref=e12]:
+    - article [ref=e13]:
+      - link "← Back to projects" [ref=e14] [cursor=pointer]:
+        - /url: /projects
+      - generic [ref=e15]:
+        - generic [ref=e16]: C++
+        - generic [ref=e17]: Compiler
+        - generic [ref=e18]: ML
+        - link "Source on GitHub" [ref=e19] [cursor=pointer]:
+          - /url: https://github.com/CutieillFusion/Fusion
+          - img [ref=e20]
+      - heading "Fusion" [level=1] [ref=e22]
+      - generic [ref=e23]:
+        - paragraph [ref=e24]:
+          - text: Linux-only programming language with LLVM backend, C runtime, and full FFI for
+          - code [ref=e25]: .so
+          - text: libraries (CUDA/NCCL-capable).
+        - paragraph [ref=e26]: "This README has two main parts:"
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - strong [ref=e29]: Language guide
+            - text: – how to write and run Fusion programs.
+          - listitem [ref=e30]:
+            - strong [ref=e31]: Build guide
+            - text: – how to build the compiler and runtime from source.
+        - paragraph [ref=e32]:
+          - text: For a deeper architecture and project roadmap, see
+          - code [ref=e33]: fusion-design-document.md
+          - text: .
+        - separator [ref=e34]
+        - heading "Fusion language overview" [level=2] [ref=e35]
+        - paragraph [ref=e36]:
+          - text: Fusion is a small, systems-style language designed to call into existing C APIs (including CUDA and NCCL) with as little ABI friction as possible. Programs are compiled to LLVM IR and JIT-executed against a C runtime that handles printing, file I/O, dynamic loading (
+          - code [ref=e37]: dlopen
+          - text: /
+          - code [ref=e38]: dlsym
+          - text: ), and
+          - code [ref=e39]: libffi
+          - text: "-based FFI calls."
+        - paragraph [ref=e40]:
+          - text: At a high level, a
+          - code [ref=e41]: .fusion
+          - text: "file looks like this:"
+        - list [ref=e42]:
+          - listitem [ref=e43]:
+            - text: Optional
+            - code [ref=e44]: opaque
+            - text: and
+            - code [ref=e45]: struct
+            - text: type declarations.
+          - listitem [ref=e46]:
+            - text: One or more
+            - code [ref=e47]: extern lib
+            - text: and
+            - code [ref=e48]: extern fn
+            - text: declarations describing C functions in
+            - code [ref=e49]: .so
+            - text: libraries.
+          - listitem [ref=e50]:
+            - text: Zero or more user
+            - code [ref=e51]: fn
+            - text: definitions.
+          - listitem [ref=e52]:
+            - text: A sequence of top-level
+            - code [ref=e53]: let
+            - text: bindings,
+            - code [ref=e54]: if
+            - text: /
+            - code [ref=e55]: elif
+            - text: /
+            - code [ref=e56]: else
+            - text: statements,
+            - code [ref=e57]: for
+            - text: loops, assignments, and expressions that are executed in order.
+        - paragraph [ref=e58]:
+          - text: The compiler synthesizes a
+          - code [ref=e59]: fusion_main
+          - text: function that evaluates the top-level items sequentially; user-defined functions are called from that top-level code or from other functions.
+        - separator [ref=e60]
+        - 'heading "Quick start: first Fusion program" [level=2] [ref=e61]'
+        - paragraph [ref=e62]:
+          - text: Create
+          - code [ref=e63]: example.fusion
+          - text: ":"
+        - code [ref=e65]:
+          - generic [ref=e66]: "struct Point { x: f64; y: f64; };"
+          - generic [ref=e67]: "extern lib \"libm.so.6\" {"
+          - generic [ref=e68]: "fn cos(x: f64) -> f64;"
+          - generic [ref=e69]: "};"
+          - generic [ref=e70]: "fn shift(v: f64) -> f64 {"
+          - generic [ref=e71]: let x = v + 1;
+          - generic [ref=e72]: return x;
+          - generic [ref=e73]: "}"
+          - generic [ref=e74]: let z = cos(1.0);
+          - generic [ref=e75]: print(z);
+          - generic [ref=e76]: let p = heap(Point);
+          - generic [ref=e77]: p.x = 3.0;
+          - generic [ref=e78]: p.y = 4.0;
+          - generic [ref=e79]: print(p.x);
+          - generic [ref=e80]: print(p.y);
+          - generic [ref=e81]: let x = z + 2;
+          - generic [ref=e82]: "if (x > 0) {"
+          - generic [ref=e83]: print(1);
+          - generic [ref=e84]: "} else {"
+          - generic [ref=e85]: print(0);
+          - generic [ref=e86]: "}"
+          - generic [ref=e87]: print(shift(x));
+        - paragraph [ref=e88]: "Build Fusion (see the build section below), then run:"
+        - code [ref=e90]:
+          - generic [ref=e91]: ./build/compiler/fusion run example.fusion
+        - paragraph [ref=e92]: "or equivalently:"
+        - code [ref=e94]:
+          - generic [ref=e95]: ./build/compiler/fusion example.fusion
+        - paragraph [ref=e96]:
+          - code [ref=e97]: fusion
+          - text: "will:"
+        - list [ref=e98]:
+          - listitem [ref=e99]: Lex and parse the source,
+          - listitem [ref=e100]: Run semantic checks (types, arity, FFI declarations, etc.),
+          - listitem [ref=e101]: Generate LLVM IR and JIT it,
+          - listitem [ref=e102]:
+            - text: Execute the synthesized
+            - code [ref=e103]: fusion_main
+            - text: that runs your top-level code.
+        - separator [ref=e104]
+        - heading "Core language concepts" [level=2] [ref=e105]
+        - heading "Program structure" [level=3] [ref=e106]
+        - paragraph [ref=e107]: "Top-level items are processed in the following order:"
+        - list [ref=e108]:
+          - listitem [ref=e109]:
+            - code [ref=e110]: opaque
+            - text: "type declarations, e.g.:"
+            - code [ref=e112]:
+              - generic [ref=e113]: opaque cudaStream_t;
+          - listitem [ref=e114]:
+            - code [ref=e115]: struct
+            - text: "definitions, e.g.:"
+            - code [ref=e117]:
+              - generic [ref=e118]: "struct Point { x: f64; y: f64; };"
+          - listitem [ref=e119]:
+            - code [ref=e120]: extern lib
+            - text: and
+            - code [ref=e121]: extern fn
+            - text: "declarations:"
+            - code [ref=e123]:
+              - generic [ref=e124]: extern lib "libm.so.6";
+              - generic [ref=e125]: "extern fn cos(x: f64) -> f64;"
+            - text: "or a block form:"
+            - code [ref=e127]:
+              - generic [ref=e128]: "extern lib \"x.so\" {"
+              - generic [ref=e129]: fn foo() -> void;
+              - generic [ref=e130]: fn bar() -> i64;
+              - generic [ref=e131]: "};"
+          - listitem [ref=e132]:
+            - code [ref=e133]: import lib
+            - text: declarations (for multi-file programs) and
+            - code [ref=e134]: export struct
+            - text: /
+            - code [ref=e135]: export fn
+            - text: (for library modules).
+          - listitem [ref=e136]:
+            - text: "User-defined functions:"
+            - code [ref=e138]:
+              - generic [ref=e139]: "fn f(x: i64) -> i64 {"
+              - generic [ref=e140]: "if (x > 0) { return 1; }"
+              - generic [ref=e141]: return 0;
+              - generic [ref=e142]: "}"
+          - listitem [ref=e143]:
+            - text: "A sequence of top-level items executed in order:"
+            - list [ref=e144]:
+              - listitem [ref=e145]:
+                - code [ref=e146]: let
+                - text: bindings, e.g.
+                - code [ref=e147]: let x = 1 + 2;
+              - listitem [ref=e148]:
+                - code [ref=e149]: if
+                - text: /
+                - code [ref=e150]: elif
+                - text: /
+                - code [ref=e151]: else
+                - text: statements
+              - listitem [ref=e152]:
+                - code [ref=e153]: for
+                - text: loops
+              - listitem [ref=e154]:
+                - text: Assignments, e.g.
+                - code [ref=e155]: a[0] = 42;
+              - listitem [ref=e156]:
+                - text: Standalone expressions (commonly
+                - code [ref=e157]: print(...)
+                - text: calls)
+        - paragraph [ref=e158]:
+          - text: The last expression is
+          - emphasis [ref=e159]: not
+          - text: special; there is no REPL-style implicit print. All output is explicit via
+          - code [ref=e160]: print
+          - text: .
+        - heading "Lexical basics and syntax" [level=3] [ref=e161]
+        - list [ref=e162]:
+          - listitem [ref=e163]:
+            - strong [ref=e164]: Comments
+            - text: start with
+            - code [ref=e165]: "#"
+            - text: "and run to the end of the line:"
+            - code [ref=e167]:
+              - generic [ref=e168]: "# This is a comment"
+          - listitem [ref=e169]:
+            - strong [ref=e170]: Literals
+            - text: ":"
+            - list [ref=e171]:
+              - listitem [ref=e172]:
+                - text: "Integer literals:"
+                - code [ref=e173]: "0"
+                - text: ","
+                - code [ref=e174]: "1"
+                - text: ","
+                - code [ref=e175]: "42"
+              - listitem [ref=e176]:
+                - text: "Float literals:"
+                - code [ref=e177]: "0.0"
+                - text: ","
+                - code [ref=e178]: "3.14"
+                - text: ","
+                - code [ref=e179]: "1e-3"
+              - listitem [ref=e180]:
+                - text: "String literals:"
+                - code [ref=e181]: "\"hello\""
+                - text: ","
+                - code [ref=e182]: "\"path/to/file.txt\""
+          - listitem [ref=e183]:
+            - strong [ref=e184]: Punctuation
+            - text: ":"
+            - list [ref=e185]:
+              - listitem [ref=e186]:
+                - text: Parentheses
+                - code [ref=e187]: ()
+                - text: ", braces"
+                - code [ref=e188]: "{}"
+                - text: ", brackets"
+                - code [ref=e189]: "[]"
+              - listitem [ref=e190]:
+                - text: Comma
+                - code [ref=e191]: ","
+                - text: ", semicolon"
+                - code [ref=e192]: ;
+                - text: ", colon"
+                - code [ref=e193]: ":"
+          - listitem [ref=e194]:
+            - strong [ref=e195]: Operators
+            - text: ":"
+            - list [ref=e196]:
+              - listitem [ref=e197]:
+                - text: "Arithmetic:"
+                - code [ref=e198]: +
+                - text: ","
+                - code [ref=e199]: "-"
+                - text: ","
+                - code [ref=e200]: "*"
+                - text: ","
+                - code [ref=e201]: /
+              - listitem [ref=e202]:
+                - text: "Comparison:"
+                - code [ref=e203]: ==
+                - text: ","
+                - code [ref=e204]: "!="
+                - text: ","
+                - code [ref=e205]: <
+                - text: ","
+                - code [ref=e206]: <=
+                - text: ","
+                - code [ref=e207]: ">"
+                - text: ","
+                - code [ref=e208]: ">="
+          - listitem [ref=e209]:
+            - strong [ref=e210]: Statement termination
+            - text: ":"
+            - list [ref=e211]:
+              - listitem [ref=e212]:
+                - text: Inside blocks and at top level, most statements end with
+                - code [ref=e213]: ;
+                - text: .
+              - listitem [ref=e214]:
+                - code [ref=e215]: if
+                - text: and
+                - code [ref=e216]: for
+                - text: introduce blocks with
+                - code [ref=e217]: "{ ... }"
+                - text: instead of
+                - code [ref=e218]: ;
+                - text: at the end of the header line.
+        - separator [ref=e219]
+        - heading "Types" [level=2] [ref=e220]
+        - paragraph [ref=e221]: "Fusion’s core value-level types correspond directly to FFI-level types:"
+        - list [ref=e222]:
+          - listitem [ref=e223]:
+            - code [ref=e224]: i8
+            - text: ","
+            - code [ref=e225]: i32
+            - text: ","
+            - code [ref=e226]: i64
+            - text: – signed integers
+          - listitem [ref=e227]:
+            - code [ref=e228]: u32
+            - text: ","
+            - code [ref=e229]: u64
+            - text: – unsigned integers
+          - listitem [ref=e230]:
+            - code [ref=e231]: f32
+            - text: ","
+            - code [ref=e232]: f64
+            - text: – floating-point numbers
+          - listitem [ref=e233]:
+            - code [ref=e234]: ptr
+            - text: – raw pointer (opaque at the language level; use
+            - code [ref=e235]: ptr
+            - text: wherever you would pass
+            - code [ref=e236]: const char*
+            - text: or
+            - code [ref=e237]: void*
+            - text: in C)
+          - listitem [ref=e238]:
+            - code [ref=e239]: void
+            - text: – used as a function return type
+        - paragraph [ref=e240]:
+          - text: String literals have pointer type and can be passed where a
+          - code [ref=e241]: ptr
+          - text: is expected.
+        - paragraph [ref=e242]:
+          - text: There is currently
+          - strong [ref=e243]:
+            - text: no dedicated
+            - code [ref=e244]: bool
+            - text: type
+          - text: ". Conditions are numeric:"
+        - list [ref=e245]:
+          - listitem [ref=e246]:
+            - text: Comparison operators yield an
+            - code [ref=e247]: i64
+            - text: “boolean” (0 or 1) used in
+            - code [ref=e248]: if
+            - text: and
+            - code [ref=e249]: for
+            - text: conditions.
+        - heading "Opaque and struct types" [level=3] [ref=e250]
+        - paragraph [ref=e251]: "Opaque types are names for ABI-level pointers that Fusion never inspects:"
+        - code [ref=e253]:
+          - generic [ref=e254]: opaque cudaStream_t;
+        - paragraph [ref=e255]: "Struct types are C-layout records:"
+        - code [ref=e257]:
+          - generic [ref=e258]: "struct Point {"
+          - generic [ref=e259]: "x: f64;"
+          - generic [ref=e260]: "y: f64;"
+          - generic [ref=e261]: "};"
+        - paragraph [ref=e262]:
+          - text: Struct field types must be primitive FFI types (e.g.
+          - code [ref=e263]: i64
+          - text: ","
+          - code [ref=e264]: f64
+          - text: ","
+          - code [ref=e265]: ptr
+          - text: ). Layout (size, alignment, offsets) is computed according to the SysV AMD64 ABI and is validated in tests.
+        - paragraph [ref=e266]: "When structs or opaque types flow across the FFI boundary, they are represented as pointers:"
+        - list [ref=e267]:
+          - listitem [ref=e268]:
+            - text: In
+            - code [ref=e269]: extern fn
+            - text: declarations, parameters and returns that use a named type (opaque or struct) are lowered to pointer types at the ABI level.
+        - heading "Expression typing and numeric promotion" [level=3] [ref=e270]
+        - list [ref=e271]:
+          - listitem [ref=e272]:
+            - text: Integer literals default to
+            - code [ref=e273]: i64
+            - text: .
+          - listitem [ref=e274]:
+            - text: Float literals default to
+            - code [ref=e275]: f64
+            - text: .
+          - listitem [ref=e276]:
+            - text: Binary arithmetic (
+            - code [ref=e277]: +
+            - text: ","
+            - code [ref=e278]: "-"
+            - text: ","
+            - code [ref=e279]: "*"
+            - text: ","
+            - code [ref=e280]: /
+            - text: "):"
+            - list [ref=e281]:
+              - listitem [ref=e282]:
+                - text: If either operand is
+                - code [ref=e283]: f64
+                - text: ", the result is"
+                - code [ref=e284]: f64
+                - text: .
+              - listitem [ref=e285]:
+                - text: Otherwise, the result is
+                - code [ref=e286]: i64
+                - text: .
+        - paragraph [ref=e287]: "This means that:"
+        - list [ref=e288]:
+          - listitem [ref=e289]:
+            - code [ref=e290]: 1 + 2
+            - text: is
+            - code [ref=e291]: i64
+          - listitem [ref=e292]:
+            - code [ref=e293]: cos(1.0) + 2
+            - text: is
+            - code [ref=e294]: f64
+            - text: and stays
+            - code [ref=e295]: f64
+            - text: (tests assert that result is not truncated).
+        - separator [ref=e296]
+        - heading "Expressions" [level=2] [ref=e297]
+        - paragraph [ref=e298]: "Common expression forms include:"
+        - list [ref=e299]:
+          - listitem [ref=e300]:
+            - strong [ref=e301]: Arithmetic
+            - text: ":"
+            - code [ref=e302]: 1 + 2 * 3
+            - text: ","
+            - code [ref=e303]: x - 4
+            - text: ","
+            - code [ref=e304]: y / 2.0
+          - listitem [ref=e305]:
+            - strong [ref=e306]: Comparison
+            - text: ":"
+            - code [ref=e307]: x > 0
+            - text: ","
+            - code [ref=e308]: a == b
+            - text: ","
+            - code [ref=e309]: p != q
+          - listitem [ref=e310]:
+            - strong [ref=e311]: Variable references
+            - text: ":"
+            - code [ref=e312]: x
+            - text: ","
+            - code [ref=e313]: point
+          - listitem [ref=e314]:
+            - strong [ref=e315]: Function calls
+            - text: ":"
+            - code [ref=e316]: print(1)
+            - text: ","
+            - code [ref=e317]: cos(0.0)
+            - text: ","
+            - code [ref=e318]: f(x, y)
+          - listitem [ref=e319]:
+            - strong [ref=e320]: Array indexing
+            - text: ":"
+            - code [ref=e321]: a[0]
+            - text: ","
+            - code [ref=e322]: points[i]
+          - listitem [ref=e323]:
+            - strong [ref=e324]: Pointer operations and loads
+            - text: (covered later)
+        - heading "Casting with as" [level=3] [ref=e325]:
+          - text: Casting with
+          - code [ref=e326]: as
+        - paragraph [ref=e327]:
+          - text: Fusion supports explicit casts using
+          - code [ref=e328]: as
+          - text: ":"
+        - code [ref=e330]:
+          - generic [ref=e331]: let x = 1 as f64;
+          - generic [ref=e332]: let y = 3.14 as i64;
+          - generic [ref=e333]: let p = some_ptr as ptr;
+          - generic [ref=e334]: let s = some_ptr as ptr;
+        - paragraph [ref=e335]: "Allowed casts:"
+        - list [ref=e336]:
+          - listitem [ref=e337]:
+            - text: "To numeric:"
+            - code [ref=e338]: as i64
+            - text: ","
+            - code [ref=e339]: as i32
+            - text: ","
+            - code [ref=e340]: as f64
+            - text: ","
+            - code [ref=e341]: as f32
+            - text: – source must be one of those numeric types.
+          - listitem [ref=e342]:
+            - text: "To pointer-like:"
+            - code [ref=e343]: as ptr
+            - text: – source must already be a pointer.
+        - paragraph [ref=e344]:
+          - text: Invalid casts (e.g. casting a non-pointer to
+          - code [ref=e345]: ptr
+          - text: ", or a pointer to a numeric type) are rejected by semantic analysis."
+        - separator [ref=e346]
+        - heading "Statements and control flow" [level=2] [ref=e347]
+        - heading "Let bindings and scope" [level=3] [ref=e348]
+        - paragraph [ref=e349]:
+          - code [ref=e350]: let
+          - text: "introduces a new immutable binding:"
+        - code [ref=e352]:
+          - generic [ref=e353]: let a = 1;
+          - generic [ref=e354]: let b = 2;
+          - generic [ref=e355]: let sum = a + b;
+        - list [ref=e356]:
+          - listitem [ref=e357]:
+            - text: At top level,
+            - code [ref=e358]: let
+            - text: bindings live in a single global scope (no shadowing).
+          - listitem [ref=e359]:
+            - text: Inside functions and blocks (
+            - code [ref=e360]: if
+            - text: /
+            - code [ref=e361]: else
+            - text: /
+            - code [ref=e362]: for
+            - text: bodies), bindings live in nested scopes tracked by the compiler. Duplicate names in the same scope are rejected.
+        - heading "If / elif / else" [level=3] [ref=e363]
+        - paragraph [ref=e364]: "Syntax:"
+        - code [ref=e366]:
+          - generic [ref=e367]: "if (x > 0) {"
+          - generic [ref=e368]: print(1);
+          - generic [ref=e369]: "} elif (x < 0) {"
+          - generic [ref=e370]: print(-1);
+          - generic [ref=e371]: "} else {"
+          - generic [ref=e372]: print(0);
+          - generic [ref=e373]: "}"
+        - list [ref=e374]:
+          - listitem [ref=e375]:
+            - code [ref=e376]: elif
+            - text: is syntactic sugar for a nested
+            - code [ref=e377]: if
+            - text: in the
+            - code [ref=e378]: else
+            - text: branch.
+          - listitem [ref=e379]:
+            - text: Conditions must be comparison expressions over numeric types or pointer equality/inequality (
+            - code [ref=e380]: ==
+            - text: /
+            - code [ref=e381]: "!="
+            - text: ).
+          - listitem [ref=e382]:
+            - text: Pointer comparisons are restricted to
+            - code [ref=e383]: ==
+            - text: and
+            - code [ref=e384]: "!="
+            - text: .
+        - heading "C-style for loops" [level=3] [ref=e385]
+        - paragraph [ref=e386]:
+          - text: Fusion uses C-style
+          - code [ref=e387]: "for (init; cond; update) { body }"
+          - text: "loops:"
+        - code [ref=e389]:
+          - generic [ref=e390]: "for (let i = 0; i < 5; i = i + 1) {"
+          - generic [ref=e391]: print(i);
+          - generic [ref=e392]: "}"
+          - generic [ref=e393]: let arr = heap_array(i64, 3);
+          - generic [ref=e394]: arr[0] = 1;
+          - generic [ref=e395]: arr[1] = 2;
+          - generic [ref=e396]: arr[2] = 3;
+          - generic [ref=e397]: "for (let i = 0; i < len(arr); i = i + 1) {"
+          - generic [ref=e398]: let x = arr[i];
+          - generic [ref=e399]: print(x);
+          - generic [ref=e400]: "}"
+          - generic [ref=e401]: print(0);
+        - paragraph [ref=e402]: "The loop variable’s type is inferred from the iterable:"
+        - list [ref=e403]:
+          - listitem [ref=e404]:
+            - strong [ref=e405]: init
+            - text: "(optional):"
+            - code [ref=e406]: let i = 0
+            - text: or
+            - code [ref=e407]: i = 0
+            - text: .
+            - strong [ref=e408]: cond
+            - text: ": e.g."
+            - code [ref=e409]: i < n
+            - text: .
+            - strong [ref=e410]: update
+            - text: "(optional): e.g."
+            - code [ref=e411]: i = i + 1
+            - text: .
+          - listitem [ref=e412]:
+            - text: Use
+            - code [ref=e413]: len(arr)
+            - text: to get array length.
+        - heading "Assignments" [level=3] [ref=e414]
+        - paragraph [ref=e415]: "Assignments are standalone statements:"
+        - code [ref=e417]:
+          - generic [ref=e418]: let x = 1;
+          - generic [ref=e419]: x = x + 1;
+          - generic [ref=e420]: let a = heap_array(i64, 3);
+          - generic [ref=e421]: a[0] = 42;
+        - paragraph [ref=e422]: "Targets:"
+        - list [ref=e423]:
+          - listitem [ref=e424]:
+            - text: "A variable:"
+            - code [ref=e425]: x = expr;
+          - listitem [ref=e426]:
+            - text: "An indexed array element:"
+            - code [ref=e427]: a[i] = expr;
+        - paragraph [ref=e428]:
+          - text: Assignments must be type-compatible. Some limited pointer/int compatibility is allowed where it matches ABI usage (e.g.
+          - code [ref=e429]: ptr
+          - text: vs
+          - code [ref=e430]: i64
+          - text: in certain contexts), otherwise the compiler reports an error.
+        - heading "Functions" [level=3] [ref=e431]
+        - paragraph [ref=e432]: "Function definition syntax:"
+        - code [ref=e434]:
+          - generic [ref=e435]: "fn sign(x: i64) -> i64 {"
+          - generic [ref=e436]: "if (x > 0) { return 1; }"
+          - generic [ref=e437]: "elif (x < 0) { return -1; }"
+          - generic [ref=e438]: "else { return 0; }"
+          - generic [ref=e439]: "}"
+          - generic [ref=e440]: print(sign(5));
+        - list [ref=e441]:
+          - listitem [ref=e442]:
+            - text: "Parameters are typed:"
+            - code [ref=e443]: "name: type"
+            - text: .
+          - listitem [ref=e444]:
+            - text: Return type appears after
+            - code [ref=e445]: "->"
+            - text: .
+          - listitem [ref=e446]:
+            - text: Return types and parameter types must be FFI types (
+            - code [ref=e447]: i32/i64/f32/f64/ptr/void
+            - text: ) or named struct/opaque types (lowered to pointers).
+          - listitem [ref=e448]:
+            - code [ref=e449]: return
+            - text: is only valid inside functions and must match the declared return type.
+        - separator [ref=e450]
+        - heading "Memory, pointers, arrays, and structs" [level=2] [ref=e451]
+        - heading "Allocation intrinsics" [level=3] [ref=e452]
+        - paragraph [ref=e453]: "These are built-in functions parsed specially by the compiler:"
+        - code [ref=e455]:
+          - generic [ref=e456]: let p = heap(Point);
+          - generic [ref=e457]: let xs = heap_array(i64, 10);
+          - generic [ref=e458]: "let buf = heap_array(i8, 1024); # raw byte buffer"
+        - paragraph [ref=e459]: "For stack-allocated storage (lifetime limited to the current function):"
+        - code [ref=e461]:
+          - generic [ref=e462]: let p = stack(i64);
+          - generic [ref=e463]: let arr = stack_array(f64, 5);
+        - list [ref=e464]:
+          - listitem [ref=e465]:
+            - code [ref=e466]: heap(T)
+            - text: /
+            - code [ref=e467]: stack(T)
+            - text: ":"
+            - list [ref=e468]:
+              - listitem [ref=e469]:
+                - code [ref=e470]: T
+                - text: can be a primitive (
+                - code [ref=e471]: i8
+                - text: ","
+                - code [ref=e472]: i32
+                - text: ","
+                - code [ref=e473]: i64
+                - text: ","
+                - code [ref=e474]: f32
+                - text: ","
+                - code [ref=e475]: f64
+                - text: ),
+                - code [ref=e476]: ptr
+                - text: ", or a user-defined struct/opaque name."
+              - listitem [ref=e477]:
+                - text: Returns a
+                - code [ref=e478]: ptr
+                - text: pointing to storage for one
+                - code [ref=e479]: T
+                - text: .
+          - listitem [ref=e480]:
+            - code [ref=e481]: heap_array(T, count)
+            - text: /
+            - code [ref=e482]: stack_array(T, count)
+            - text: ":"
+            - list [ref=e483]:
+              - listitem [ref=e484]:
+                - code [ref=e485]: T
+                - text: as above,
+                - code [ref=e486]: count
+                - text: must be
+                - code [ref=e487]: i64
+                - text: .
+              - listitem [ref=e488]:
+                - text: Returns a
+                - code [ref=e489]: ptr
+                - text: to an array of
+                - code [ref=e490]: count
+                - text: elements.
+        - paragraph [ref=e491]:
+          - text: Heap allocations can be freed with
+          - code [ref=e492]: free(ptr)
+          - text: and
+          - code [ref=e493]: free_array(ptr)
+          - text: . Use
+          - code [ref=e494]: as_heap(ptr)
+          - text: or
+          - code [ref=e495]: as_array(ptr, elem_type)
+          - text: when the compiler cannot infer the allocation origin.
+        - paragraph [ref=e496]: All intrinsics lower to runtime allocations (heap) or LLVM alloca (stack) implemented in the C runtime.
+        - heading "Pointer operations and indexing" [level=3] [ref=e497]
+        - paragraph [ref=e498]: "Core pointer operations:"
+        - code [ref=e500]:
+          - generic [ref=e501]: let p = heap(i64);
+          - generic [ref=e502]: store(p, 42);
+          - generic [ref=e503]: let v = load(p);
+          - generic [ref=e504]: "let q = addr_of(v); # address of a variable"
+          - generic [ref=e505]: "let f = load_f64(fp); # load as f64"
+          - generic [ref=e506]: "let ip = load_ptr(pp); # load pointer"
+        - list [ref=e507]:
+          - listitem [ref=e508]:
+            - code [ref=e509]: addr_of(var)
+            - text: – pointer to a variable binding.
+          - listitem [ref=e510]:
+            - code [ref=e511]: load(p)
+            - text: – load
+            - code [ref=e512]: i64
+            - text: from a pointer.
+          - listitem [ref=e513]:
+            - code [ref=e514]: load_f64(p)
+            - text: – load
+            - code [ref=e515]: f64
+            - text: from a pointer.
+          - listitem [ref=e516]:
+            - code [ref=e517]: load_i32(p)
+            - text: – load
+            - code [ref=e518]: i32
+            - text: from a pointer.
+          - listitem [ref=e519]:
+            - code [ref=e520]: load_ptr(p)
+            - text: – load
+            - code [ref=e521]: ptr
+            - text: from a pointer.
+          - listitem [ref=e522]:
+            - code [ref=e523]: store(p, value)
+            - text: – store a value through a pointer.
+        - paragraph [ref=e524]: "Array indexing:"
+        - code [ref=e526]:
+          - generic [ref=e527]: let a = heap_array(i64, 3);
+          - generic [ref=e528]: a[0] = 10;
+          - generic [ref=e529]: a[1] = 20;
+          - generic [ref=e530]: a[2] = 30;
+          - generic [ref=e531]: print(a[0]);
+        - list [ref=e532]:
+          - listitem [ref=e533]:
+            - text: Base expression must be a pointer produced by
+            - code [ref=e534]: heap_array
+            - text: or
+            - code [ref=e535]: stack_array
+            - text: (or a
+            - code [ref=e536]: let
+            - text: binding of such).
+          - listitem [ref=e537]:
+            - text: Index expression must be
+            - code [ref=e538]: i64
+            - text: .
+          - listitem [ref=e539]: The element type is inferred from the array.
+        - heading "Structs and field access" [level=3] [ref=e540]
+        - paragraph [ref=e541]: "Struct declarations:"
+        - code [ref=e543]:
+          - generic [ref=e544]: "struct Point { x: f64; y: f64; };"
+        - paragraph [ref=e545]: "Usage with dot notation:"
+        - code [ref=e547]:
+          - generic [ref=e548]: let p = heap(Point);
+          - generic [ref=e549]: p.x = 3.0;
+          - generic [ref=e550]: p.y = 4.0;
+          - generic [ref=e551]: print(p.x);
+          - generic [ref=e552]: print(p.y);
+        - list [ref=e553]:
+          - listitem [ref=e554]:
+            - code [ref=e555]: expr.field
+            - text: – read or write a struct field via dot notation.
+          - listitem [ref=e556]: The base must be a pointer to a struct.
+          - listitem [ref=e557]:
+            - text: For low-level access,
+            - code [ref=e558]: load_field(p, StructName, field)
+            - text: and
+            - code [ref=e559]: store_field(p, StructName, field, value)
+            - text: are also available.
+        - paragraph [ref=e560]: Layout is computed from the struct definition according to the platform ABI and is shared with the FFI system.
+        - separator [ref=e561]
+        - heading "Built-in library and I/O helpers" [level=2] [ref=e562]
+        - heading "Printing and streams" [level=3] [ref=e563]
+        - paragraph [ref=e564]:
+          - code [ref=e565]: print
+          - text: "is a built-in with two forms:"
+        - code [ref=e567]:
+          - generic [ref=e568]: "print(42); # default stream"
+          - generic [ref=e569]: print(3.14);
+          - generic [ref=e570]: print("hello");
+          - generic [ref=e571]: "print(42, 1); # optional stream id (i64)"
+        - paragraph [ref=e572]: "Supported value types:"
+        - list [ref=e573]:
+          - listitem [ref=e574]:
+            - code [ref=e575]: i64
+            - text: (and other integers widened to
+            - code [ref=e576]: i64
+            - text: )
+          - listitem [ref=e577]:
+            - code [ref=e578]: f64
+            - text: (and other floats widened to
+            - code [ref=e579]: f64
+            - text: )
+          - listitem [ref=e580]:
+            - code [ref=e581]: ptr
+            - text: (including string literals and pointers to C strings)
+        - paragraph [ref=e582]:
+          - text: The second argument, when present, must be
+          - code [ref=e583]: i64
+          - text: and is interpreted as a stream identifier by the runtime (e.g., stdout/stderr).
+        - heading "Array length and iteration" [level=3] [ref=e584]
+        - paragraph [ref=e585]:
+          - code [ref=e586]: len(arr)
+          - text: returns the length (element count) of an array as
+          - code [ref=e587]: i64
+          - text: ":"
+        - code [ref=e589]:
+          - generic [ref=e590]: let arr = heap_array(i64, 5);
+          - generic [ref=e591]: "for (let i = 0; i < len(arr); i = i + 1) {"
+          - generic [ref=e592]: arr[i] = i;
+          - generic [ref=e593]: print(arr[i]);
+          - generic [ref=e594]: "}"
+        - list [ref=e595]:
+          - listitem [ref=e596]:
+            - code [ref=e597]: len(arr)
+            - text: –
+            - code [ref=e598]: arr
+            - text: must be a pointer to an array (from
+            - code [ref=e599]: heap_array
+            - text: or
+            - code [ref=e600]: stack_array
+            - text: ). Returns the stored length as
+            - code [ref=e601]: i64
+            - text: .
+        - heading "Strings and numeric conversion" [level=3] [ref=e602]
+        - paragraph [ref=e603]: "The runtime exposes helpers for converting between strings and numbers:"
+        - code [ref=e605]:
+          - generic [ref=e606]: let line = read_line();
+          - generic [ref=e607]: let n = from_str(line, i64);
+          - generic [ref=e608]: let s = to_str(n);
+          - generic [ref=e609]: print(s);
+        - list [ref=e610]:
+          - listitem [ref=e611]:
+            - code [ref=e612]: read_line()
+            - text: ":"
+            - list [ref=e613]:
+              - listitem [ref=e614]: Reads a single line from stdin.
+              - listitem [ref=e615]:
+                - text: Returns a
+                - code [ref=e616]: ptr
+                - text: (null-terminated string managed by the runtime).
+          - listitem [ref=e617]:
+            - code [ref=e618]: to_str(x)
+            - text: ":"
+            - list [ref=e619]:
+              - listitem [ref=e620]:
+                - code [ref=e621]: x
+                - text: must be
+                - code [ref=e622]: i64
+                - text: or
+                - code [ref=e623]: f64
+                - text: .
+              - listitem [ref=e624]:
+                - text: Returns a
+                - code [ref=e625]: ptr
+                - text: to a string representation of the number.
+          - listitem [ref=e626]:
+            - code [ref=e627]: from_str(s, T)
+            - text: ":"
+            - list [ref=e628]:
+              - listitem [ref=e629]:
+                - code [ref=e630]: s
+                - text: must be a pointer (
+                - code [ref=e631]: ptr
+                - text: ) to a string.
+              - listitem [ref=e632]:
+                - code [ref=e633]: T
+                - text: is
+                - code [ref=e634]: i64
+                - text: or
+                - code [ref=e635]: f64
+                - text: .
+              - listitem [ref=e636]:
+                - text: Returns a numeric value,
+                - code [ref=e637]: "0"
+                - text: /
+                - code [ref=e638]: "0.0"
+                - text: on invalid input.
+        - heading "String concatenation" [level=3] [ref=e639]
+        - paragraph [ref=e640]:
+          - text: The
+          - code [ref=e641]: +
+          - text: operator concatenates two
+          - code [ref=e642]: ptr
+          - text: (string) values and returns a new
+          - code [ref=e643]: ptr
+          - text: ":"
+        - code [ref=e645]:
+          - generic [ref=e646]: let s = to_str(42) + " items";
+          - generic [ref=e647]: print(s);
+          - generic [ref=e648]: let combined = to_str(100) + " " + to_str(2.5);
+          - generic [ref=e649]: print(combined);
+        - paragraph [ref=e650]:
+          - text: Both operands must be
+          - code [ref=e651]: ptr
+          - text: ; the result is
+          - code [ref=e652]: ptr
+          - text: . String literals,
+          - code [ref=e653]: to_str
+          - text: results,
+          - code [ref=e654]: read_line
+          - text: results, and any other
+          - code [ref=e655]: ptr
+          - text: "-typed values can be combined this way."
+        - heading "Typed pointer syntax ptr[T]" [level=3] [ref=e656]:
+          - text: Typed pointer syntax
+          - code [ref=e657]: ptr[T]
+        - paragraph [ref=e658]:
+          - text: Parameter types, struct field types, and casts support an optional
+          - code [ref=e659]: "[T]"
+          - text: annotation on
+          - code [ref=e660]: ptr
+          - text: "to communicate the pointed-to type:"
+        - code [ref=e662]:
+          - generic [ref=e663]: "fn f(p: ptr[Point]) -> void {"
+          - generic [ref=e664]: print(p.x);
+          - generic [ref=e665]: "}"
+          - generic [ref=e666]: "struct List {"
+          - generic [ref=e667]: "next: ptr[List];"
+          - generic [ref=e668]: "value: i64;"
+          - generic [ref=e669]: "};"
+          - generic [ref=e670]: let q = some_ptr as ptr[Point];
+        - paragraph [ref=e671]:
+          - code [ref=e672]: ptr[void]
+          - text: is equivalent to bare
+          - code [ref=e673]: ptr
+          - text: (opaque pointer). This annotation is purely syntactic — at the ABI and codegen level
+          - code [ref=e674]: ptr[T]
+          - text: is lowered identically to
+          - code [ref=e675]: ptr
+          - text: .
+        - paragraph [ref=e676]:
+          - strong [ref=e677]: "Note:"
+          - code [ref=e678]: "-> ptr[T]"
+          - text: in a return-type position has different semantics (array-element return), which is an existing, unchanged feature.
+        - heading "File I/O" [level=3] [ref=e679]
+        - paragraph [ref=e680]: "The C runtime provides simple file APIs surfaced through built-ins:"
+        - code [ref=e682]:
+          - generic [ref=e683]: let path = "data.txt";
+          - generic [ref=e684]: let mode = "r";
+          - generic [ref=e685]: let f = open(path, mode);
+          - generic [ref=e686]: "# First, get line count (or use eof_file to loop until EOF)"
+          - generic [ref=e687]: let total_lines = line_count_file(f);
+          - generic [ref=e688]: close(f);
+          - generic [ref=e689]: let f2 = open(path, mode);
+          - generic [ref=e690]: "for (let i = 0; i < total_lines; i = i + 1) {"
+          - generic [ref=e691]: let line = read_line_file(f2);
+          - generic [ref=e692]: print(line);
+          - generic [ref=e693]: "}"
+          - generic [ref=e694]: close(f2);
+        - paragraph [ref=e695]: "Available operations:"
+        - list [ref=e696]:
+          - listitem [ref=e697]:
+            - code [ref=e698]: open(path, mode)
+            - text: ":"
+            - list [ref=e699]:
+              - listitem [ref=e700]: Both arguments must be pointer/string values.
+              - listitem [ref=e701]: Returns a file handle pointer (opaque).
+          - listitem [ref=e702]:
+            - code [ref=e703]: close(handle)
+            - text: – closes the file handle.
+          - listitem [ref=e704]:
+            - code [ref=e705]: read_line_file(handle)
+            - text: – returns next line as a pointer/string.
+          - listitem [ref=e706]:
+            - code [ref=e707]: write_file(handle, value)
+            - text: ":"
+            - list [ref=e708]:
+              - listitem [ref=e709]:
+                - code [ref=e710]: value
+                - text: can be
+                - code [ref=e711]: i64
+                - text: ","
+                - code [ref=e712]: f64
+                - text: ", or pointer/string."
+          - listitem [ref=e713]:
+            - code [ref=e714]: eof_file(handle)
+            - text: – returns
+            - code [ref=e715]: i64
+            - text: (0 = not EOF, non-zero = EOF).
+          - listitem [ref=e716]:
+            - code [ref=e717]: line_count_file(handle)
+            - text: – returns
+            - code [ref=e718]: i64
+            - text: count of lines read so far.
+          - listitem [ref=e719]:
+            - code [ref=e720]: write_bytes(handle, buf, n)
+            - text: – write
+            - code [ref=e721]: "n"
+            - text: bytes from
+            - code [ref=e722]: buf
+            - text: to file.
+          - listitem [ref=e723]:
+            - code [ref=e724]: read_bytes(handle, buf, n)
+            - text: – read up to
+            - code [ref=e725]: "n"
+            - text: bytes into
+            - code [ref=e726]: buf
+            - text: .
+        - paragraph [ref=e727]: These functions are type-checked by the compiler to ensure handles are pointers and value types are compatible.
+        - heading "Function pointers and other built-ins" [level=3] [ref=e728]
+        - list [ref=e729]:
+          - listitem [ref=e730]:
+            - code [ref=e731]: get_func_ptr(fn)
+            - text: – returns a
+            - code [ref=e732]: ptr
+            - text: to a user-defined function.
+          - listitem [ref=e733]:
+            - code [ref=e734]: call(fp, arg1, arg2, ...)
+            - text: – invokes a function through a pointer (e.g. from
+            - code [ref=e735]: get_func_ptr
+            - text: ).
+          - listitem [ref=e736]:
+            - code [ref=e737]: rt_panic(msg)
+            - text: – terminates the program with an error message (
+            - code [ref=e738]: msg
+            - text: is a
+            - code [ref=e739]: ptr
+            - text: to a string).
+        - separator [ref=e740]
+        - heading "Multi-file programs and libraries" [level=2] [ref=e741]
+        - paragraph [ref=e742]:
+          - text: Fusion supports splitting code across multiple
+          - code [ref=e743]: .fusion
+          - text: files via
+          - code [ref=e744]: import lib
+          - text: and
+          - code [ref=e745]: export
+          - text: ":"
+        - code [ref=e747]:
+          - generic [ref=e748]: "# vec.fusion – library module"
+          - generic [ref=e749]: "export struct Vector { x: f64; y: f64; };"
+          - generic [ref=e750]: "export fn make_vec(x: f64, y: f64) -> Vector {"
+          - generic [ref=e751]: let p = heap(Vector);
+          - generic [ref=e752]: p.x = x;
+          - generic [ref=e753]: p.y = y;
+          - generic [ref=e754]: return p;
+          - generic [ref=e755]: "}"
+        - code [ref=e757]:
+          - generic [ref=e758]: "# main.fusion – imports the library"
+          - generic [ref=e759]: "import lib \"vec\" {"
+          - generic [ref=e760]: struct Vector;
+          - generic [ref=e761]: "fn make_vec(x: f64, y: f64) -> Vector;"
+          - generic [ref=e762]: "};"
+          - generic [ref=e763]: let v = make_vec(1.0, 2.0);
+          - generic [ref=e764]: print(v.x);
+          - generic [ref=e765]: print(v.y);
+        - list [ref=e766]:
+          - listitem [ref=e767]:
+            - code [ref=e768]: "import lib \"name\" { ... }"
+            - text: – loads
+            - code [ref=e769]: name.fusion
+            - text: (or
+            - code [ref=e770]: name/
+            - text: directory) and imports the declared structs and functions.
+          - listitem [ref=e771]:
+            - code [ref=e772]: export struct
+            - text: /
+            - code [ref=e773]: export fn
+            - text: – makes a struct or function visible to importers.
+          - listitem [ref=e774]: The import block lists only the struct names and function signatures; the implementation lives in the library file.
+        - separator [ref=e775]
+        - heading "FFI declarations and interop" [level=2] [ref=e776]
+        - heading "Declaring libraries" [level=3] [ref=e777]
+        - paragraph [ref=e778]: You can declare external libraries in two ways.
+        - paragraph [ref=e779]:
+          - strong [ref=e780]: "Simple form:"
+        - code [ref=e782]:
+          - generic [ref=e783]: extern lib "libm.so.6";
+          - generic [ref=e784]: "extern fn cos(x: f64) -> f64;"
+        - paragraph [ref=e785]:
+          - text: The compiler assigns an internal name like
+          - code [ref=e786]: __lib0
+          - text: and binds
+          - code [ref=e787]: cos
+          - text: to that library.
+        - paragraph [ref=e788]:
+          - strong [ref=e789]: "Block form with explicit functions:"
+        - code [ref=e791]:
+          - generic [ref=e792]: "extern lib \"mylib.so\" {"
+          - generic [ref=e793]: fn foo() -> void;
+          - generic [ref=e794]: "fn bar(x: i64) -> i64;"
+          - generic [ref=e795]: "};"
+        - paragraph [ref=e796]: All functions inside the block are associated with the same library.
+        - paragraph [ref=e797]: "You can also alias the library name:"
+        - code [ref=e799]:
+          - generic [ref=e800]: extern lib "libm.so.6" as libm;
+          - generic [ref=e801]: "extern fn cos(x: f64) -> f64;"
+        - heading "Declaring external functions" [level=3] [ref=e802]
+        - paragraph [ref=e803]: "Syntax:"
+        - code [ref=e805]:
+          - generic [ref=e806]: extern lib "libm.so.6";
+          - generic [ref=e807]: "extern fn cos(x: f64) -> f64;"
+        - paragraph [ref=e808]: or inside a block, as shown above.
+        - paragraph [ref=e809]: "Parameter and return types:"
+        - list [ref=e810]:
+          - listitem [ref=e811]:
+            - text: Keyword types (
+            - code [ref=e812]: i32
+            - text: ","
+            - code [ref=e813]: i64
+            - text: ","
+            - code [ref=e814]: u32
+            - text: ","
+            - code [ref=e815]: u64
+            - text: ","
+            - code [ref=e816]: f32
+            - text: ","
+            - code [ref=e817]: f64
+            - text: ","
+            - code [ref=e818]: ptr
+            - text: ","
+            - code [ref=e819]: void
+            - text: ) map directly to FFI primitive kinds.
+          - listitem [ref=e820]: Named types (structs and opaques) are treated as pointers at the ABI layer.
+        - paragraph [ref=e821]: "The compiler verifies:"
+        - list [ref=e822]:
+          - listitem [ref=e823]:
+            - text: That every
+            - code [ref=e824]: extern fn
+            - text: refers to a declared library.
+          - listitem [ref=e825]: That names used as struct/opaque types are known.
+        - heading "Type mapping to C" [level=3] [ref=e826]
+        - paragraph [ref=e827]:
+          - text: Fusion’s FFI mapping is defined by the runtime (
+          - code [ref=e828]: rt_ffi_type_kind_t
+          - text: ") and the semantic layer. In practice:"
+        - table [ref=e829]:
+          - rowgroup [ref=e830]:
+            - row "Fusion type C / ABI type" [ref=e831]:
+              - columnheader "Fusion type" [ref=e832]
+              - columnheader "C / ABI type" [ref=e833]
+          - rowgroup [ref=e834]:
+            - row "i8 int8_t" [ref=e835]:
+              - cell "i8" [ref=e836]:
+                - code [ref=e837]: i8
+              - cell "int8_t" [ref=e838]:
+                - code [ref=e839]: int8_t
+            - row "i32 int32_t" [ref=e840]:
+              - cell "i32" [ref=e841]:
+                - code [ref=e842]: i32
+              - cell "int32_t" [ref=e843]:
+                - code [ref=e844]: int32_t
+            - row "i64 int64_t / long long" [ref=e845]:
+              - cell "i64" [ref=e846]:
+                - code [ref=e847]: i64
+              - cell "int64_t / long long" [ref=e848]:
+                - code [ref=e849]: int64_t
+                - text: /
+                - code [ref=e850]: long long
+            - row "f32 float" [ref=e851]:
+              - cell "f32" [ref=e852]:
+                - code [ref=e853]: f32
+              - cell "float" [ref=e854]:
+                - code [ref=e855]: float
+            - row "f64 double" [ref=e856]:
+              - cell "f64" [ref=e857]:
+                - code [ref=e858]: f64
+              - cell "double" [ref=e859]:
+                - code [ref=e860]: double
+            - row "ptr void*" [ref=e861]:
+              - cell "ptr" [ref=e862]:
+                - code [ref=e863]: ptr
+              - cell "void*" [ref=e864]:
+                - code [ref=e865]: void*
+            - row "(strings) use ptr; C side is const char* or void* as appropriate" [ref=e866]:
+              - cell "(strings)" [ref=e867]
+              - cell "use ptr; C side is const char* or void* as appropriate" [ref=e868]:
+                - text: use
+                - code [ref=e869]: ptr
+                - text: ; C side is
+                - code [ref=e870]: const char*
+                - text: or
+                - code [ref=e871]: void*
+                - text: as appropriate
+            - row "struct/opaque name pointer to that type (T*)" [ref=e872]:
+              - cell "struct/opaque name" [ref=e873]
+              - cell "pointer to that type (T*)" [ref=e874]:
+                - text: pointer to that type (
+                - code [ref=e875]: T*
+                - text: )
+        - paragraph [ref=e876]: "The platform assumptions for v1 are:"
+        - list [ref=e877]:
+          - listitem [ref=e878]: Linux x86-64
+          - listitem [ref=e879]: SysV AMD64 ABI
+          - listitem [ref=e880]:
+            - text: ELF shared libraries (
+            - code [ref=e881]: .so
+            - text: )
+        - heading "Calling externs from Fusion" [level=3] [ref=e882]
+        - paragraph [ref=e883]: "Putting it all together:"
+        - code [ref=e885]:
+          - generic [ref=e886]: extern lib "libm.so.6";
+          - generic [ref=e887]: "extern fn cos(x: f64) -> f64;"
+          - generic [ref=e888]: let v = cos(0.0);
+          - generic [ref=e889]: print(v);
+        - paragraph [ref=e890]: "At runtime, the generated code:"
+        - list [ref=e891]:
+          - listitem [ref=e892]:
+            - text: Uses the C runtime to
+            - code [ref=e893]: dlopen("libm.so.6")
+            - text: .
+          - listitem [ref=e894]:
+            - text: Uses
+            - code [ref=e895]: dlsym
+            - text: to find the
+            - code [ref=e896]: cos
+            - text: symbol.
+          - listitem [ref=e897]:
+            - text: Uses
+            - code [ref=e898]: libffi
+            - text: to prepare and invoke a call with one
+            - code [ref=e899]: double
+            - text: argument and
+            - code [ref=e900]: double
+            - text: return.
+          - listitem [ref=e901]:
+            - text: Unmarshals the result back into a Fusion
+            - code [ref=e902]: f64
+            - text: .
+        - paragraph [ref=e903]:
+          - text: More advanced examples (structs by pointer, out-parameters) are covered in tests and example
+          - code [ref=e904]: .fusion
+          - text: programs such as
+          - code [ref=e905]: example.fusion
+          - text: ","
+          - code [ref=e906]: example_points.fusion
+          - text: ", and"
+          - code [ref=e907]: train_moons.fusion
+          - text: .
+        - separator [ref=e908]
+        - heading "Execution model and CLI" [level=2] [ref=e909]
+        - paragraph [ref=e910]:
+          - text: The
+          - code [ref=e911]: fusion
+          - text: CLI is built in
+          - code [ref=e912]: build/compiler/fusion
+          - text: ". It supports:"
+        - list [ref=e913]:
+          - listitem [ref=e914]:
+            - code [ref=e915]: fusion --help
+            - text: /
+            - code [ref=e916]: fusion -h
+            - text: – show help and usage.
+          - listitem [ref=e917]:
+            - code [ref=e918]: fusion --version
+            - text: /
+            - code [ref=e919]: fusion -v
+            - text: – show compiler and LLVM version.
+          - listitem [ref=e920]:
+            - code [ref=e921]: fusion run file.fusion
+            - text: – compile and JIT-run a
+            - code [ref=e922]: .fusion
+            - text: file.
+          - listitem [ref=e923]:
+            - code [ref=e924]: fusion file.fusion
+            - text: – shorthand for
+            - code [ref=e925]: fusion run file.fusion
+            - text: .
+        - paragraph [ref=e926]: "On each run, the compiler:"
+        - list [ref=e927]:
+          - listitem [ref=e928]: Lexes the input.
+          - listitem [ref=e929]: Parses into an AST.
+          - listitem [ref=e930]: Runs semantic checks (types, FFI declarations, built-in usage, etc.).
+          - listitem [ref=e931]: Lowers to LLVM IR, verifies the module, and JITs it.
+          - listitem [ref=e932]:
+            - text: Executes
+            - code [ref=e933]: fusion_main
+            - text: .
+        - paragraph [ref=e934]: Errors are reported with a message and (where possible) line/column information from the parser or semantic analyzer.
+        - heading "Common errors and diagnostics" [level=3] [ref=e935]
+        - paragraph [ref=e936]: "Some common classes of semantic errors:"
+        - list [ref=e937]:
+          - listitem [ref=e938]:
+            - strong [ref=e939]: Undefined variable
+            - text: ":"
+            - code [ref=e941]:
+              - generic [ref=e942]: let x = 1;
+              - generic [ref=e943]: "print(y); # y is undefined"
+          - listitem [ref=e944]:
+            - strong [ref=e945]: Wrong arity
+            - text: ":"
+            - code [ref=e947]:
+              - generic [ref=e948]: "print(1, 2, 3); # print only accepts 1 or 2 arguments"
+          - listitem [ref=e949]:
+            - strong [ref=e950]: Invalid FFI declaration
+            - text: ":"
+            - list [ref=e951]:
+              - listitem [ref=e952]: Extern function refers to an unknown library.
+              - listitem [ref=e953]: Extern function uses an unknown struct/opaque type name.
+          - listitem [ref=e954]:
+            - strong [ref=e955]:
+              - text: Invalid
+              - code [ref=e956]: len
+              - text: argument
+            - text: ":"
+            - code [ref=e958]:
+              - generic [ref=e959]: let n = 5;
+              - generic [ref=e960]: "let x = len(n); # len expects a pointer (array)"
+          - listitem [ref=e961]:
+            - strong [ref=e962]: Invalid casts
+            - text: "or mis-typed pointer operations:"
+            - list [ref=e963]:
+              - listitem [ref=e964]:
+                - code [ref=e965]: load
+                - text: /
+                - code [ref=e966]: load_f64
+                - text: /
+                - code [ref=e967]: load_ptr
+                - text: /
+                - code [ref=e968]: load_i32
+                - text: require pointer arguments.
+              - listitem [ref=e969]:
+                - code [ref=e970]: store
+                - text: requires a pointer as the first argument.
+              - listitem [ref=e971]:
+                - code [ref=e972]: as
+                - text: target type must be one of the supported numeric or pointer-like types.
+        - paragraph [ref=e973]: The error messages are designed to be explicit about which built-in or function caused the problem.
+        - separator [ref=e974]
+        - heading "Architecture (high level)" [level=2] [ref=e975]
+        - paragraph [ref=e976]: "Conceptually, Fusion’s execution stack looks like this:"
+        - document [ref=e978]:
+          - generic [ref=e981]:
+            - generic [ref=e986]: FusionSource(.fusion)
+            - generic [ref=e991]: Lexer
+            - generic [ref=e996]: Parser
+            - generic [ref=e1001]: AST
+            - generic [ref=e1006]: SemanticAnalysis
+            - generic [ref=e1011]: LLVMIRGeneration
+            - generic [ref=e1016]: LLVMJIT
+            - generic [ref=e1021]: CRuntime(rt_*)
+            - generic [ref=e1026]: FFIEngine(libffi+libdl)
+            - generic [ref=e1031]: SharedLibraries(.so)
+        - list [ref=e1032]:
+          - listitem [ref=e1033]:
+            - text: The
+            - strong [ref=e1034]: compiler frontend
+            - text: (lexer, parser, semantic analysis) is implemented in C++.
+          - listitem [ref=e1035]:
+            - text: The
+            - strong [ref=e1036]: backend
+            - text: uses LLVM to build and JIT modules.
+          - listitem [ref=e1037]:
+            - text: The
+            - strong [ref=e1038]: C runtime
+            - text: (
+            - code [ref=e1039]: runtime_c
+            - text: ) provides printing, file I/O, dynamic loading, and FFI services.
+          - listitem [ref=e1040]:
+            - text: The
+            - strong [ref=e1041]: FFI engine
+            - text: uses
+            - code [ref=e1042]: libffi
+            - text: and
+            - code [ref=e1043]: libdl
+            - text: to dynamically call into arbitrary
+            - code [ref=e1044]: .so
+            - text: libraries.
+        - paragraph [ref=e1045]:
+          - text: For much more detail on this architecture and the long-term roadmap (including CUDA/NCCL integration and potential bindgen tooling), read
+          - code [ref=e1046]: fusion-design-document.md
+          - text: .
+        - separator [ref=e1047]
+        - heading "Build and test (Linux)" [level=2] [ref=e1048]
+        - paragraph [ref=e1049]: "The simplest way to configure, build, and run all tests:"
+        - code [ref=e1051]:
+          - generic [ref=e1052]: ./make.sh
+        - paragraph [ref=e1053]: "Flags:"
+        - list [ref=e1054]:
+          - listitem [ref=e1055]:
+            - code [ref=e1056]: ./make.sh
+            - text: — configure (if needed), build, and run all tests
+          - listitem [ref=e1057]:
+            - code [ref=e1058]: ./make.sh -r
+            - text: — clean rebuild from scratch (removes
+            - code [ref=e1059]: build/
+            - text: first)
+          - listitem [ref=e1060]:
+            - code [ref=e1061]: ./make.sh -d
+            - text: — debug build with AddressSanitizer (
+            - code [ref=e1062]: "-fsanitize=address -g"
+            - text: )
+          - listitem [ref=e1063]:
+            - code [ref=e1064]: ./make.sh -n
+            - text: — use Ninja instead of Make (requires
+            - code [ref=e1065]: ninja-build
+            - text: )
+        - paragraph [ref=e1066]: "Or manually:"
+        - code [ref=e1068]:
+          - generic [ref=e1069]: cmake -B build -S .
+          - generic [ref=e1070]: cmake --build build -j$(nproc)
+          - generic [ref=e1071]: ctest --test-dir build --output-on-failure
+        - heading "Faster builds" [level=3] [ref=e1072]
+        - paragraph [ref=e1073]: "Several options can speed up rebuilds:"
+        - list [ref=e1074]:
+          - listitem [ref=e1075]:
+            - strong [ref=e1076]: Ninja generator
+            - text: —
+            - code [ref=e1077]: ./make.sh -n
+            - text: or
+            - code [ref=e1078]: cmake -B build -S . -G Ninja
+            - text: . Faster incremental builds than Make.
+          - listitem [ref=e1079]:
+            - strong [ref=e1080]: ccache
+            - text: — Enabled by default (
+            - code [ref=e1081]: "-DFUSION_USE_CCACHE=ON"
+            - text: ). Install with
+            - code [ref=e1082]: sudo apt install ccache
+            - text: . Run
+            - code [ref=e1083]: ccache -s
+            - text: to check hit rates.
+          - listitem [ref=e1084]:
+            - strong [ref=e1085]: Faster linker (mold/lld)
+            - text: —
+            - code [ref=e1086]: cmake -B build -S . -DFUSION_USE_FAST_LINKER=ON
+            - text: . Tries
+            - code [ref=e1087]: mold
+            - text: first, then
+            - code [ref=e1088]: lld
+            - text: . Install with
+            - code [ref=e1089]: sudo apt install mold
+            - text: or
+            - code [ref=e1090]: sudo apt install lld
+            - text: .
+          - listitem [ref=e1091]:
+            - strong [ref=e1092]: Precompiled headers
+            - text: — LLVM headers in
+            - code [ref=e1093]: codegen.cpp
+            - text: are precompiled automatically via CMake’s
+            - code [ref=e1094]: target_precompile_headers
+            - text: ", speeding up rebuilds of codegen."
+        - heading "Exit criteria (Phase 0)" [level=3] [ref=e1095]
+        - list [ref=e1096]:
+          - listitem [ref=e1097]:
+            - strong [ref=e1098]:
+              - code [ref=e1099]: fusion --help
+            - text: — Run
+            - code [ref=e1100]: ./build/compiler/fusion --help
+            - text: for usage.
+          - listitem [ref=e1101]:
+            - strong [ref=e1102]: Runtime
+            - text: —
+            - code [ref=e1103]: build/runtime_c/libruntime.so
+            - text: and
+            - code [ref=e1104]: build/runtime_c/libruntime.a
+            - text: are produced.
+          - listitem [ref=e1105]:
+            - strong [ref=e1106]: Tests
+            - text: —
+            - code [ref=e1107]: ctest --test-dir build
+            - text: runs the C test runner and the
+            - code [ref=e1108]: fusion --help
+            - text: test.
+        - separator [ref=e1109]
+        - heading "Language server (LSP) and VS Code extension" [level=2] [ref=e1110]
+        - paragraph [ref=e1111]:
+          - text: Fusion ships a Language Server Protocol implementation in the
+          - code [ref=e1112]: lsp/
+          - text: directory. After building, the binary is at
+          - code [ref=e1113]: build/lsp/fusion_lsp
+          - text: .
+        - paragraph [ref=e1114]:
+          - strong [ref=e1115]: "Build the LSP server only:"
+        - code [ref=e1117]:
+          - generic [ref=e1118]: cmake --build build --target fusion_lsp
+        - paragraph [ref=e1119]:
+          - strong [ref=e1120]: "Features:"
+        - list [ref=e1121]:
+          - listitem [ref=e1122]: Hover documentation
+          - listitem [ref=e1123]: Go to definition
+          - listitem [ref=e1124]: Document and workspace symbols
+          - listitem [ref=e1125]: Completion (keywords, functions, variables)
+          - listitem [ref=e1126]: Signature help
+          - listitem [ref=e1127]: Document highlight and references
+          - listitem [ref=e1128]: Rename symbol
+          - listitem [ref=e1129]: Semantic token coloring (keywords, types, functions, variables, parameters)
+          - listitem [ref=e1130]: Folding ranges
+          - listitem [ref=e1131]: Inlay hints (parameter names at call sites)
+          - listitem [ref=e1132]: Diagnostics (errors from the compiler, with multi-error support)
+        - paragraph [ref=e1133]:
+          - strong [ref=e1134]: "VS Code / Cursor:"
+          - text: See
+          - code [ref=e1135]: vscode-fusion/
+          - text: for the extension. Install it from the
+          - code [ref=e1136]: vscode-fusion
+          - text: "folder (Developer: Install Extension from Location…). The extension auto-detects"
+          - code [ref=e1137]: build/fusion_lsp
+          - text: relative to the workspace root, or you can set
+          - code [ref=e1138]: fusion.serverPath
+          - text: in VS Code settings.
+        - separator [ref=e1139]
+        - heading "User-local dependencies (~/.local)" [level=2] [ref=e1140]
+        - paragraph [ref=e1141]:
+          - text: On systems where libffi or zlib are not available as dev packages (e.g. no sudo), you can install them under
+          - code [ref=e1142]: ~/.local
+          - text: and point the build there.
+        - paragraph [ref=e1143]:
+          - strong [ref=e1144]: 1. Install libffi
+        - code [ref=e1146]:
+          - generic [ref=e1147]: mkdir -p "$HOME/src" "$HOME/.local"
+          - generic [ref=e1148]: cd "$HOME/src"
+          - generic [ref=e1149]: curl -LO https://github.com/libffi/libffi/releases/download/v3.4.6/libffi-3.4.6.tar.gz
+          - generic [ref=e1150]: tar -xzf libffi-3.4.6.tar.gz
+          - generic [ref=e1151]: cd libffi-3.4.6
+          - generic [ref=e1152]: ./configure --prefix="$HOME/.local"
+          - generic [ref=e1153]: make -j
+          - generic [ref=e1154]: make install
+        - paragraph [ref=e1155]:
+          - strong [ref=e1156]: 2. Install zlib
+          - text: (if you see link errors for
+          - code [ref=e1157]: compress2
+          - text: ","
+          - code [ref=e1158]: uncompress
+          - text: ","
+          - code [ref=e1159]: crc32
+          - text: )
+        - code [ref=e1161]:
+          - generic [ref=e1162]: cd "$HOME/src"
+          - generic [ref=e1163]: curl -LO https://zlib.net/zlib-1.3.1.tar.gz
+          - generic [ref=e1164]: tar -xzf zlib-1.3.1.tar.gz
+          - generic [ref=e1165]: cd zlib-1.3.1
+          - generic [ref=e1166]: ./configure --prefix="$HOME/.local"
+          - generic [ref=e1167]: make -j
+          - generic [ref=e1168]: make install
+        - paragraph [ref=e1169]:
+          - strong [ref=e1170]: 3. Use them when building
+        - paragraph [ref=e1171]:
+          - text: Source the env script so CMake and the compiler find headers and libs in
+          - code [ref=e1172]: ~/.local
+          - text: ":"
+        - code [ref=e1174]:
+          - generic [ref=e1175]: source ./env_local_deps.sh
+          - generic [ref=e1176]: ./test.sh
+        - paragraph [ref=e1177]:
+          - text: "Or for a manual build:"
+          - code [ref=e1178]: source ./env_local_deps.sh
+          - text: then run
+          - code [ref=e1179]: cmake -B build
+          - text: ","
+          - code [ref=e1180]: cmake --build build
+          - text: ", etc."
+        - paragraph [ref=e1181]:
+          - strong [ref=e1182]: Sanity check
+          - text: "(after sourcing):"
+          - code [ref=e1183]: pkg-config --modversion libffi
+          - text: and
+          - code [ref=e1184]: pkg-config --modversion zlib
+          - text: should print versions.
+        - paragraph [ref=e1185]:
+          - strong [ref=e1186]: "Option A via CMake:"
+          - text: "If you prefer not to install libffi manually, you can have CMake download and build it into the build tree:"
+        - code [ref=e1188]:
+          - generic [ref=e1189]: cmake -B build -S . -DFUSION_FETCH_LIBFFI=ON
+          - generic [ref=e1190]: cmake --build build
+        - paragraph [ref=e1191]:
+          - text: This uses ExternalProject to fetch libffi 3.4.6 and install it under
+          - code [ref=e1192]: build/_deps/libffi-install
+          - text: (no
+          - code [ref=e1193]: ~/.local
+          - text: or
+          - code [ref=e1194]: env_local_deps.sh
+          - text: needed).
+        - separator [ref=e1195]
+        - heading "LLVM (required)" [level=2] [ref=e1196]
+        - paragraph [ref=e1197]:
+          - text: LLVM is required to build Fusion. If LLVM is not installed, CMake will try to find it; on Linux, if not found, CMake can download a pre-built LLVM into
+          - code [ref=e1198]: build/_deps/llvm
+          - text: on first configure (set
+          - code [ref=e1199]: FUSION_DOWNLOAD_LLVM=ON
+          - text: ", which is the default on Linux)."
+        - paragraph [ref=e1200]:
+          - strong [ref=e1201]: "Auto-download (no sudo):"
+          - text: On Linux, if LLVM is not found, CMake downloads a pre-built LLVM (x86_64 Linux) into
+          - code [ref=e1202]: build/_deps/llvm
+          - text: ". To disable auto-download and supply LLVM yourself:"
+        - code [ref=e1204]:
+          - generic [ref=e1205]: cmake -B build -S . -DFUSION_DOWNLOAD_LLVM=OFF
+        - paragraph [ref=e1206]: "To use a different LLVM version when auto-downloading:"
+        - code [ref=e1208]:
+          - generic [ref=e1209]: cmake -B build -S . -DFUSION_LLVM_VERSION=18.1.7
+        - paragraph [ref=e1210]: If LLVM cannot be found or downloaded, configure will fail with an error.
+  - contentinfo [ref=e1211]:
+    - generic [ref=e1212]:
+      - paragraph [ref=e1213]: © 2026 Dylan Norquist
+      - generic [ref=e1214]:
+        - link "Email" [ref=e1215] [cursor=pointer]:
+          - /url: mailto:business@dylannorquist.codes
+          - img [ref=e1216]
+        - link "GitHub" [ref=e1219] [cursor=pointer]:
+          - /url: https://github.com/CutieillFusion
+          - img [ref=e1220]
+        - link "LinkedIn" [ref=e1222] [cursor=pointer]:
+          - /url: https://www.linkedin.com/in/dylan-norquist-578901256/
+          - img [ref=e1223]
+  - generic [ref=e1227]:
+    - button "Menu" [ref=e1228]:
+      - img [ref=e1230]
+      - generic: Menu
+    - button "Inspect" [ref=e1234]:
+      - img [ref=e1236]
+      - generic: Inspect
+    - button "Audit" [ref=e1238]:
+      - img [ref=e1240]
+      - generic: Audit
+    - button "Settings" [ref=e1243]:
+      - img [ref=e1245]
+      - generic: Settings

@@ -1,0 +1,54 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Dylan Norquist" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Home" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - link "About" [ref=e7] [cursor=pointer]:
+          - /url: /about
+        - link "Projects" [ref=e8] [cursor=pointer]:
+          - /url: /projects
+        - link "Blog" [ref=e9] [cursor=pointer]:
+          - /url: /blog
+        - link "Resume" [ref=e10] [cursor=pointer]:
+          - /url: /resume
+  - main [ref=e11]:
+    - heading "Projects" [level=1] [ref=e12]
+    - paragraph [ref=e13]: A handful of things I've built. More to come.
+    - generic [ref=e14]:
+      - article [ref=e15]:
+        - heading "Minecraft Neural Network" [level=2] [ref=e17]
+        - paragraph [ref=e18]: A working neural network running on an 8-bit computer built inside Minecraft. Forward pass, weights, the works.
+        - generic [ref=e19]:
+          - generic [ref=e20]: Redstone
+          - generic [ref=e21]: ML
+          - generic [ref=e22]: For fun
+      - article [ref=e23]:
+        - generic [ref=e24]:
+          - heading "Personal Site" [level=2] [ref=e25]
+          - link "Source →" [ref=e26] [cursor=pointer]:
+            - /url: https://github.com/CutieillFusion/personal-website
+        - paragraph [ref=e27]: This site. Static Astro, hand-authored posts, deployed on Vercel.
+        - generic [ref=e28]:
+          - generic [ref=e29]: Astro
+          - generic [ref=e30]: TypeScript
+  - contentinfo [ref=e31]:
+    - generic [ref=e32]:
+      - paragraph [ref=e33]: © 2026 Dylan Norquist
+      - link "business@dylannorquist.codes" [ref=e34] [cursor=pointer]:
+        - /url: mailto:business@dylannorquist.codes
+  - generic [ref=e37]:
+    - button "Menu" [ref=e38]:
+      - img [ref=e40]
+      - generic: Menu
+    - button "Inspect" [ref=e44]:
+      - img [ref=e46]
+      - generic: Inspect
+    - button "Audit" [ref=e48]:
+      - img [ref=e50]
+      - generic: Audit
+    - button "Settings" [ref=e53]:
+      - img [ref=e55]
+      - generic: Settings

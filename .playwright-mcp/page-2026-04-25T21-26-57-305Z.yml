@@ -1,0 +1,48 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Dylan Norquist" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Home" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - link "About" [ref=e7] [cursor=pointer]:
+          - /url: /about
+        - link "Projects" [ref=e8] [cursor=pointer]:
+          - /url: /projects
+        - link "Blog" [ref=e9] [cursor=pointer]:
+          - /url: /blog
+        - link "Resume" [ref=e10] [cursor=pointer]:
+          - /url: /resume
+  - main [ref=e11]:
+    - article [ref=e12]:
+      - link "← Back to blog" [ref=e13] [cursor=pointer]:
+        - /url: /blog
+      - time [ref=e15]: April 25, 2026
+      - heading "Hello, world" [level=1] [ref=e16]
+      - generic [ref=e17]:
+        - paragraph [ref=e18]: I rebuilt this site from scratch. The previous version was a Next.js app with a Postgres-backed CMS, an admin panel, an LLM chatbot, and a fair amount of plumbing for what amounted to a personal page. It was fun to build, but it stopped being fun to maintain.
+        - paragraph [ref=e19]:
+          - text: The new version is plain Astro. Posts are hand-authored
+          - code [ref=e20]: .astro
+          - text: files. There is no database, no auth, and no API surface. Every page is static HTML at build time.
+        - heading "What I'll write about" [level=2] [ref=e21]
+        - paragraph [ref=e22]: Mostly machine learning notes, the occasional side project, and whatever I'm currently thinking about at MSOE or at work. If a post would survive being half-finished and unpolished, it'll probably show up here.
+  - contentinfo [ref=e23]:
+    - generic [ref=e24]:
+      - paragraph [ref=e25]: © 2026 Dylan Norquist
+      - link "business@dylannorquist.codes" [ref=e26] [cursor=pointer]:
+        - /url: mailto:business@dylannorquist.codes
+  - generic [ref=e29]:
+    - button "Menu" [ref=e30]:
+      - img [ref=e32]
+      - generic: Menu
+    - button "Inspect" [ref=e36]:
+      - img [ref=e38]
+      - generic: Inspect
+    - button "Audit" [ref=e40]:
+      - img [ref=e42]
+      - generic: Audit
+    - button "Settings" [ref=e45]:
+      - img [ref=e47]
+      - generic: Settings

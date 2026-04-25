@@ -1,0 +1,526 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "Dylan Norquist — engineer and student writing about ML, software, and side projects.",
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+const canonicalURL = new URL(currentPath, Astro.site);
+
+const navItems = [
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/projects", label: "Projects" },
+  { href: "/blog", label: "Blog" },
+  { href: "/resume", label: "Resume" },
+];
+
+const isActive = (href: string) =>
+  href === "/" ? currentPath === "/" : currentPath.startsWith(href);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#111111" />
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <title>{title}</title>
+  </head>
+  <body>
+    <nav class="site-nav">
+      <div class="nav-inner">
+        <a href="/" class="nav-logo">Dylan Norquist</a>
+        <div class="nav-links">
+          {navItems.map((item) => (
+            <a
+              href={item.href}
+              class:list={["nav-link", { active: isActive(item.href) }]}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+        <button class="nav-mobile-toggle" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="nav-mobile-menu">
+      {navItems.map((item) => (
+        <a href={item.href} class="nav-mobile-link">{item.label}</a>
+      ))}
+    </div>
+
+    <div class="site-main">
+      <slot />
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p class="footer-copy">&copy; {new Date().getFullYear()} Dylan Norquist</p>
+        <div class="icon-links">
+          <a class="icon-link" href="mailto:business@dylannorquist.codes" aria-label="Email">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="m3 7 9 6 9-6" />
+            </svg>
+          </a>
+          <a class="icon-link" href="https://github.com/CutieillFusion" aria-label="GitHub" target="_blank" rel="noopener noreferrer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+            </svg>
+          </a>
+          <a class="icon-link" href="https://www.linkedin.com/in/dylan-norquist-578901256/" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const toggle = document.querySelector('.nav-mobile-toggle');
+      const menu = document.querySelector('.nav-mobile-menu');
+      toggle?.addEventListener('click', () => {
+        menu?.classList.toggle('open');
+        toggle.classList.toggle('open');
+      });
+    </script>
+
+    <script is:inline>
+      // Lazy-load mermaid only on pages that contain ```mermaid code blocks.
+      // Astro/Shiki renders fenced ```mermaid blocks as <pre data-language="mermaid">
+      // with syntax-highlighted spans inside. Mermaid renders from textContent.
+      (async () => {
+        const blocks = document.querySelectorAll('pre[data-language="mermaid"]');
+        if (!blocks.length) return;
+        const { default: mermaid } = await import('https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs');
+        mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose' });
+        for (let i = 0; i < blocks.length; i++) {
+          const pre = blocks[i];
+          const source = (pre.textContent || '').trim();
+          try {
+            const { svg } = await mermaid.render(`mermaid-${i}`, source);
+            const wrapper = document.createElement('div');
+            wrapper.className = 'mermaid-diagram';
+            wrapper.innerHTML = svg;
+            pre.replaceWith(wrapper);
+          } catch (err) {
+            console.error('Mermaid render failed for block', i, err);
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --bg: #fafafa;
+    --bg-elevated: #ffffff;
+    --fg: #111111;
+    --fg-muted: #555555;
+    --fg-soft: #888888;
+    --border: rgba(17, 17, 17, 0.1);
+    --accent: #2747d4;
+    --max-width: 760px;
+    --nav-height: 64px;
+    --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  html,
+  body {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .site-main {
+    flex: 1 0 auto;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ===== NAV ===== */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--nav-height);
+    background: rgba(250, 250, 250, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+  }
+
+  .nav-logo {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .nav-link {
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .nav-link:hover {
+    color: var(--fg);
+    background: rgba(17, 17, 17, 0.04);
+  }
+
+  .nav-link.active {
+    color: var(--fg);
+  }
+
+  .nav-mobile-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .nav-mobile-toggle span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--fg);
+    border-radius: 1px;
+    transition: all 0.3s ease;
+  }
+
+  .nav-mobile-toggle.open span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  .nav-mobile-toggle.open span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-mobile-toggle.open span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  .nav-mobile-menu {
+    display: none;
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    background: rgba(250, 250, 250, 0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    flex-direction: column;
+    z-index: 99;
+    transform: translateY(-8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+  }
+
+  .nav-mobile-menu.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .nav-mobile-link {
+    font-size: 0.95rem;
+    color: var(--fg);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-mobile-link:last-child {
+    border-bottom: none;
+  }
+
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none;
+    }
+    .nav-mobile-toggle {
+      display: flex;
+    }
+    .nav-mobile-menu {
+      display: flex;
+    }
+    .nav-inner {
+      padding: 0 20px;
+    }
+  }
+
+  /* ===== FOOTER ===== */
+  .site-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 96px;
+  }
+
+  .footer-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 0.85rem;
+    color: var(--fg-soft);
+  }
+
+  .icon-links {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    color: var(--fg-muted);
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .icon-link:hover {
+    color: var(--accent);
+    background: rgba(17, 17, 17, 0.04);
+  }
+
+  @media (max-width: 768px) {
+    .footer-inner {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 24px 20px;
+    }
+  }
+
+  /* ===== SHARED PAGE UTILITIES ===== */
+  .page-container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 64px 24px 32px;
+  }
+
+  @media (max-width: 768px) {
+    .page-container {
+      padding: 48px 20px 24px;
+    }
+  }
+
+  .page-title {
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .page-sub {
+    font-size: 1.05rem;
+    color: var(--fg-muted);
+    margin-bottom: 48px;
+  }
+
+  .prose {
+    color: var(--fg-muted);
+    line-height: 1.7;
+  }
+
+  .prose p {
+    margin-bottom: 16px;
+  }
+
+  .prose h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 40px 0 12px;
+    color: var(--fg);
+  }
+
+  .prose h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 28px 0 8px;
+    color: var(--fg);
+  }
+
+  .prose h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 20px 0 6px;
+    color: var(--fg);
+  }
+
+  .prose a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+
+  .prose ul,
+  .prose ol {
+    margin: 0 0 16px 1.4em;
+  }
+
+  .prose ul { list-style: disc; }
+  .prose ol { list-style: decimal; }
+
+  .prose li {
+    margin-bottom: 4px;
+  }
+
+  .prose li > p {
+    margin-bottom: 4px;
+  }
+
+  .prose code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: 2px 6px;
+    background: rgba(17, 17, 17, 0.05);
+    border-radius: 4px;
+  }
+
+  .prose pre {
+    margin: 0 0 16px;
+    padding: 16px 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #f6f6f6;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+
+  .prose pre code {
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    font-size: inherit;
+  }
+
+  .prose blockquote {
+    margin: 0 0 16px;
+    padding: 4px 0 4px 16px;
+    border-left: 3px solid var(--border);
+    color: var(--fg-soft);
+  }
+
+  .prose hr {
+    margin: 32px 0;
+    border: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .prose table {
+    width: 100%;
+    margin: 0 0 16px;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .prose th,
+  .prose td {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prose th {
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .prose strong { color: var(--fg); }
+
+  .mermaid-diagram {
+    margin: 16px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    overflow-x: auto;
+    text-align: center;
+  }
+
+  .mermaid-diagram svg {
+    max-width: 100%;
+    height: auto;
+  }
+</style>

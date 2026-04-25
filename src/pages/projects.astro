@@ -1,0 +1,83 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<Base title="Projects — Dylan Norquist" description="Projects Dylan Norquist has built or is currently working on.">
+  <main class="page-container">
+    <h1 class="page-title">Projects</h1>
+    <p class="page-sub">A handful of things I've built. More to come.</p>
+
+    <div class="projects-list">
+      {projects.map((p) => (
+        <a href={`/projects/${p.id}`} class="project-card">
+          <h2 class="project-title">{p.data.title}</h2>
+          <p class="project-desc">{p.data.description}</p>
+          <div class="project-tags">
+            {p.data.tags.map((t) => <span class="project-tag">{t}</span>)}
+          </div>
+        </a>
+      ))}
+    </div>
+  </main>
+</Base>
+
+<style>
+  .projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .project-card {
+    display: block;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    background: var(--bg-elevated);
+    transition: border-color 0.15s, transform 0.15s;
+  }
+
+  .project-card:hover {
+    border-color: rgba(17, 17, 17, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .project-card:hover .project-title {
+    color: var(--accent);
+  }
+
+  .project-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+    color: var(--fg);
+    transition: color 0.15s;
+  }
+
+  .project-desc {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .project-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--fg-soft);
+  }
+</style>

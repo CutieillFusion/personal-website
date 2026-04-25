@@ -1,0 +1,376 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Dylan Norquist" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Home" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - link "About" [ref=e7] [cursor=pointer]:
+          - /url: /about
+        - link "Projects" [ref=e8] [cursor=pointer]:
+          - /url: /projects
+        - link "Blog" [ref=e9] [cursor=pointer]:
+          - /url: /blog
+        - link "Resume" [ref=e10] [cursor=pointer]:
+          - /url: /resume
+  - main [ref=e12]:
+    - article [ref=e13]:
+      - link "← Back to projects" [ref=e14] [cursor=pointer]:
+        - /url: /projects
+      - generic [ref=e15]:
+        - generic [ref=e16]: Python
+        - generic [ref=e17]: Triton
+        - generic [ref=e18]: ML
+        - link "Source on GitHub" [ref=e19] [cursor=pointer]:
+          - /url: https://github.com/CutieillFusion/Gradtuity
+          - img [ref=e20]
+      - heading "Gradtuity" [level=1] [ref=e22]
+      - generic [ref=e23]:
+        - paragraph [ref=e24]:
+          - strong [ref=e25]: Gradtuity
+          - text: is a from-scratch tensor autograd engine with Triton GPU kernels. It provides a minimal PyTorch-like API for building and training on GPU. Its written with the intent of being a no dependency library but
+          - code [ref=e26]: torch
+          - text: and
+          - code [ref=e27]: numpy
+          - text: is required for calling
+          - code [ref=e28]: triton
+          - text: kernels.
+        - heading "Features" [level=2] [ref=e29]
+        - list [ref=e30]:
+          - listitem [ref=e31]:
+            - strong [ref=e32]: GPU tensors
+            - text: via raw CUDA (ctypes +
+            - code [ref=e33]: libcudart.so
+            - text: ), no PyTorch/NumPy for storage.
+          - listitem [ref=e34]:
+            - strong [ref=e35]: "Autograd:"
+            - text: computation graph,
+            - code [ref=e36]: backward()
+            - text: ", topo sort, gradient propagation."
+          - listitem [ref=e37]:
+            - strong [ref=e38]: "Triton kernels:"
+            - text: matmul, elementwise (add, mul, ReLU), conv2d, maxpool2d, reductions, SGD step.
+          - listitem [ref=e39]:
+            - strong [ref=e40]: "NN building blocks:"
+            - code [ref=e41]: Module
+            - text: ","
+            - code [ref=e42]: Linear
+            - text: ","
+            - code [ref=e43]: Conv2d
+            - text: ","
+            - code [ref=e44]: MaxPool2d
+            - text: ","
+            - code [ref=e45]: Flatten
+            - text: ","
+            - code [ref=e46]: MLP
+            - text: ","
+            - code [ref=e47]: CNN
+            - text: .
+          - listitem [ref=e48]:
+            - strong [ref=e49]: "Training helpers:"
+            - code [ref=e50]: zero_grad
+            - text: ","
+            - code [ref=e51]: sgd_step
+            - text: (in
+            - link "gradtuity/functional.py" [ref=e52] [cursor=pointer]:
+              - /url: gradtuity/functional.py
+            - text: ).
+        - heading "Install / Quick start" [level=2] [ref=e53]
+        - paragraph [ref=e54]:
+          - text: "Requirements: Python 3.12+, CUDA,"
+          - code [ref=e55]: numpy
+          - text: ","
+          - code [ref=e56]: torch
+          - text: ","
+          - code [ref=e57]: triton
+          - text: .
+        - paragraph [ref=e58]:
+          - text: Install
+          - link "uv" [ref=e59] [cursor=pointer]:
+            - /url: https://docs.astral.sh/uv/
+          - text: "(Python package manager):"
+        - code [ref=e61]:
+          - generic [ref=e62]: curl -LsSf https://astral.sh/uv/install.sh | sh
+        - paragraph [ref=e63]: "Then install dependencies from the repo root:"
+        - code [ref=e65]:
+          - generic [ref=e66]: uv sync
+        - paragraph [ref=e67]: "Run the MNIST demo:"
+        - code [ref=e69]:
+          - generic [ref=e70]: uv run python demos/demo_mnist.py
+        - paragraph [ref=e71]: "Training Step Example:"
+        - code [ref=e73]:
+          - generic [ref=e74]: from gradtuity import MLP, Tensor, zero_grad, sgd_step
+          - generic [ref=e75]: model = MLP(784, [128, 64, 10])
+          - generic [ref=e76]: "x = Tensor(...) # batch of shape (batch_size, 784)"
+          - generic [ref=e77]: "target = Tensor(...) # one-hot targets (batch_size, 10)"
+          - generic [ref=e78]: logits = model(x)
+          - generic [ref=e79]: loss = logits.mse_loss(target)
+          - generic [ref=e80]: model.zero_grad()
+          - generic [ref=e81]: loss.backward()
+          - generic [ref=e82]: sgd_step(model.parameters(), lr=0.01)
+        - paragraph [ref=e83]: "Custom Module example:"
+        - code [ref=e85]:
+          - generic [ref=e86]: from gradtuity import Module, Linear, Tensor
+          - generic [ref=e87]: "class Example(Module):"
+          - generic [ref=e88]: "def __init__(self, in_features: int, out_features: int):"
+          - generic [ref=e89]: self.fc1 = Linear(in_features, 64)
+          - generic [ref=e90]: self.fc2 = Linear(64, out_features)
+          - generic [ref=e91]: "def __call__(self, x: Tensor) -> Tensor:"
+          - generic [ref=e92]: x = self.fc1(x).relu()
+          - generic [ref=e93]: return self.fc2(x)
+        - heading "Architecture" [level=2] [ref=e94]
+        - paragraph [ref=e95]:
+          - text: "High-level stack: Python API (Tensor, Module, functional) → core (tensor + nn) → Triton kernels → CUDA memory ("
+          - link "cuda_mem.py" [ref=e96] [cursor=pointer]:
+            - /url: gradtuity/cuda_mem.py
+          - text: ","
+          - link "kernels/" [ref=e97] [cursor=pointer]:
+            - /url: gradtuity/kernels/
+          - text: ).
+        - code [ref=e99]:
+          - generic [ref=e100]: flowchart TB
+          - generic [ref=e101]: subgraph api [Public API]
+          - generic [ref=e102]: Tensor
+          - generic [ref=e103]: Module
+          - generic [ref=e104]: functional
+          - generic [ref=e105]: end
+          - generic [ref=e106]: subgraph core [Core]
+          - generic [ref=e107]: tensor_impl[Tensor + autograd]
+          - generic [ref=e108]: nn_layers[Linear, Conv2d, etc.]
+          - generic [ref=e109]: end
+          - generic [ref=e110]: subgraph kernels [Triton Kernels]
+          - generic [ref=e111]: matmul
+          - generic [ref=e112]: elemwise
+          - generic [ref=e113]: conv_pool
+          - generic [ref=e114]: reduce_optim
+          - generic [ref=e115]: end
+          - generic [ref=e116]: subgraph cuda [GPU]
+          - generic [ref=e117]: "cuda_mem[cuda_mem: malloc, copy]"
+          - generic [ref=e118]: end
+          - generic [ref=e119]: api --> core
+          - generic [ref=e120]: core --> kernels
+          - generic [ref=e121]: kernels --> cuda
+        - heading "Adding a kernel" [level=2] [ref=e122]
+        - paragraph [ref=e123]:
+          - text: Kernels live in
+          - link "gradtuity/kernels/" [ref=e124] [cursor=pointer]:
+            - /url: gradtuity/kernels/
+          - text: "and are written in Triton. To add one:"
+        - list [ref=e125]:
+          - listitem [ref=e126]:
+            - paragraph [ref=e127]:
+              - strong [ref=e128]: Define the kernel
+              - text: in the appropriate file (e.g.
+              - link "elemwise_kernels.py" [ref=e129] [cursor=pointer]:
+                - /url: gradtuity/kernels/elemwise_kernels.py
+              - text: ","
+              - link "optim_kernels.py" [ref=e130] [cursor=pointer]:
+                - /url: gradtuity/kernels/optim_kernels.py
+              - text: ). Use
+              - code [ref=e131]: "@triton.jit"
+              - text: ","
+              - code [ref=e132]: tl.pointer_type(tl.float32)
+              - text: for GPU buffers, and a
+              - code [ref=e133]: "BLOCK: tl.constexpr"
+              - text: for the block size. For 1D elementwise ops, use
+              - code [ref=e134]: tl.program_id(0)
+              - text: ","
+              - code [ref=e135]: offsets
+              - text: ", and"
+              - code [ref=e136]: mask = offsets < numel
+              - text: ; then
+              - code [ref=e137]: tl.load
+              - text: / compute /
+              - code [ref=e138]: tl.store
+              - text: .
+          - listitem [ref=e139]:
+            - paragraph [ref=e140]:
+              - strong [ref=e141]: Export it
+              - text: from
+              - link "gradtuity/kernels/init.py" [ref=e142] [cursor=pointer]:
+                - /url: gradtuity/kernels/__init__.py
+                - text: gradtuity/kernels/
+                - strong [ref=e143]: init
+                - text: .py
+              - text: (import and add to
+              - code [ref=e144]: __all__
+              - text: ).
+          - listitem [ref=e145]:
+            - paragraph [ref=e146]:
+              - strong [ref=e147]: Call it from Python
+              - text: in
+              - link "tensor.py" [ref=e148] [cursor=pointer]:
+                - /url: gradtuity/tensor.py
+              - text: or
+              - link "functional.py" [ref=e149] [cursor=pointer]:
+                - /url: gradtuity/functional.py
+              - text: ": allocate output if needed (e.g."
+              - code [ref=e150]: empty_tensor(shape)
+              - text: or
+              - code [ref=e151]: empty_tensor(shape, zero=True)
+              - text: ), then launch with a grid (e.g.
+              - code [ref=e152]: grid1d(numel)
+              - text: ) and pass raw pointers (
+              - code [ref=e153]: tensor.ptr
+              - text: "):"
+            - code [ref=e155]:
+              - generic [ref=e156]: out = empty_tensor(shape)
+              - generic [ref=e157]: my_kernel[grid1d(numel)](out.ptr, x.ptr, numel, BLOCK=BLOCK)
+          - listitem [ref=e158]:
+            - paragraph [ref=e159]:
+              - strong [ref=e160]: If the op is differentiable
+              - text: ", call"
+              - code [ref=e161]: out._set_graph(parents=(self, ...), backward_fn=_backward)
+              - text: so
+              - code [ref=e162]: backward()
+              - text: can propagate gradients. See e.g.
+              - code [ref=e163]: relu
+              - text: or
+              - code [ref=e164]: add
+              - text: in
+              - link "tensor.py" [ref=e165] [cursor=pointer]:
+                - /url: gradtuity/tensor.py
+              - text: for the pattern.
+        - paragraph [ref=e166]:
+          - text: For a minimal example, see
+          - link "fill_kernel" [ref=e167] [cursor=pointer]:
+            - /url: gradtuity/kernels/optim_kernels.py
+          - text: (no autograd) or
+          - link "add_kernel" [ref=e168] [cursor=pointer]:
+            - /url: gradtuity/kernels/elemwise_kernels.py
+          - text: (with backward).
+        - heading "Training loop" [level=2] [ref=e169]
+        - paragraph [ref=e170]:
+          - text: "Typical training step: forward → scalar loss →"
+          - code [ref=e171]: zero_grad
+          - text: →
+          - code [ref=e172]: backward()
+          - text: →
+          - code [ref=e173]: sgd_step
+          - text: ". Demos:"
+          - link "demos/demo_mnist.py" [ref=e174] [cursor=pointer]:
+            - /url: demos/demo_mnist.py
+          - text: ","
+          - link "demos/demo_mnist_cnn.py" [ref=e175] [cursor=pointer]:
+            - /url: demos/demo_mnist_cnn.py
+          - text: .
+        - code [ref=e177]:
+          - generic [ref=e178]: sequenceDiagram
+          - generic [ref=e179]: participant User
+          - generic [ref=e180]: participant Model
+          - generic [ref=e181]: participant Tensor
+          - generic [ref=e182]: participant functional
+          - generic [ref=e183]: "User->>Model: forward(x)"
+          - generic [ref=e184]: "Model->>Tensor: layers / ops"
+          - generic [ref=e185]: "Tensor-->>User: logits"
+          - generic [ref=e186]: "User->>Tensor: loss = mse(logits, target)"
+          - generic [ref=e187]: "User->>functional: zero_grad(params)"
+          - generic [ref=e188]: "User->>Tensor: loss.backward()"
+          - generic [ref=e189]: "Note over Tensor: topo sort, then _backward()"
+          - generic [ref=e190]: "User->>functional: sgd_step(params, lr)"
+        - heading "Autograd" [level=2] [ref=e191]
+        - paragraph [ref=e192]:
+          - text: Backward seeds the loss with grad 1.0, then walks the graph in reverse topological order and calls each op’s
+          - code [ref=e193]: _backward
+          - text: to propagate gradients to parameters (
+          - link "tensor.py" [ref=e194] [cursor=pointer]:
+            - /url: gradtuity/tensor.py
+          - code [ref=e195]: backward()
+          - text: and op
+          - code [ref=e196]: _parents
+          - text: /
+          - code [ref=e197]: _backward
+          - text: ).
+        - code [ref=e199]:
+          - generic [ref=e200]: flowchart LR
+          - generic [ref=e201]: subgraph forward [Forward]
+          - generic [ref=e202]: A[x] --> B["* W"]
+          - generic [ref=e203]: B --> C["+ b"]
+          - generic [ref=e204]: C --> D[loss]
+          - generic [ref=e205]: end
+          - generic [ref=e206]: subgraph backward [Backward]
+          - generic [ref=e207]: D --> |"grad=1"| C
+          - generic [ref=e208]: C --> |"_backward"| B
+          - generic [ref=e209]: B --> |"_backward"| A
+          - generic [ref=e210]: end
+        - heading "API overview" [level=2] [ref=e211]
+        - list [ref=e212]:
+          - listitem [ref=e213]:
+            - strong [ref=e214]: "Tensors:"
+            - code [ref=e215]: Tensor(data, shape?, requires_grad?)
+            - text: ","
+            - code [ref=e216]: .backward()
+            - text: ","
+            - code [ref=e217]: .grad
+            - text: "; factories:"
+            - code [ref=e218]: zeros
+            - text: ","
+            - code [ref=e219]: ones
+            - text: ","
+            - code [ref=e220]: randn
+            - text: ", etc. in"
+            - code [ref=e221]: functional
+            - text: .
+          - listitem [ref=e222]:
+            - strong [ref=e223]: "Training:"
+            - code [ref=e224]: zero_grad(params)
+            - text: ","
+            - code [ref=e225]: sgd_step(params, lr)
+            - text: .
+          - listitem [ref=e226]:
+            - strong [ref=e227]: "NN:"
+            - code [ref=e228]: Module
+            - text: ","
+            - code [ref=e229]: Linear
+            - text: ","
+            - code [ref=e230]: Conv2d
+            - text: ","
+            - code [ref=e231]: MaxPool2d
+            - text: ","
+            - code [ref=e232]: Flatten
+            - text: ","
+            - code [ref=e233]: MLP
+            - text: ","
+            - code [ref=e234]: CNN
+            - text: from
+            - code [ref=e235]: gradtuity.nn
+            - text: .
+        - paragraph [ref=e236]:
+          - text: See docstrings and
+          - link "gradtuity/tests/" [ref=e237] [cursor=pointer]:
+            - /url: gradtuity/tests/
+          - text: for details.
+        - heading "Demos and tests" [level=2] [ref=e238]
+        - list [ref=e239]:
+          - listitem [ref=e240]:
+            - strong [ref=e241]: "Demos:"
+            - code [ref=e242]: demos/demo_mnist.py
+            - text: (MLP),
+            - code [ref=e243]: demos/demo_mnist_cnn.py
+            - text: (CNN). Run with
+            - code [ref=e244]: uv run python demos/demo_mnist.py
+            - text: .
+          - listitem [ref=e245]:
+            - strong [ref=e246]: "Tests:"
+            - code [ref=e247]: pytest gradtuity/tests
+            - text: (from repo root).
+        - heading "License" [level=2] [ref=e248]
+        - paragraph [ref=e249]:
+          - text: MIT License. See
+          - link "LICENSE" [ref=e250] [cursor=pointer]:
+            - /url: LICENSE
+          - text: .
+  - contentinfo [ref=e251]:
+    - generic [ref=e252]:
+      - paragraph [ref=e253]: © 2026 Dylan Norquist
+      - generic [ref=e254]:
+        - link "Email" [ref=e255] [cursor=pointer]:
+          - /url: mailto:business@dylannorquist.codes
+          - img [ref=e256]
+        - link "GitHub" [ref=e259] [cursor=pointer]:
+          - /url: https://github.com/CutieillFusion
+          - img [ref=e260]
+        - link "LinkedIn" [ref=e262] [cursor=pointer]:
+          - /url: https://www.linkedin.com/in/dylan-norquist-578901256/
+          - img [ref=e263]

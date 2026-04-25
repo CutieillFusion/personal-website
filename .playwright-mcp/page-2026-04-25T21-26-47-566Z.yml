@@ -1,0 +1,42 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Dylan Norquist" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Home" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - link "About" [ref=e7] [cursor=pointer]:
+          - /url: /about
+        - link "Projects" [ref=e8] [cursor=pointer]:
+          - /url: /projects
+        - link "Blog" [ref=e9] [cursor=pointer]:
+          - /url: /blog
+        - link "Resume" [ref=e10] [cursor=pointer]:
+          - /url: /resume
+  - main [ref=e11]:
+    - heading "Blog" [level=1] [ref=e12]
+    - paragraph [ref=e13]: Notes on machine learning, software, and side projects.
+    - link "April 25, 2026 Hello, world A short note on why this site exists and what I plan to write about here." [ref=e15] [cursor=pointer]:
+      - /url: /blog/hello-world
+      - time [ref=e16]: April 25, 2026
+      - heading "Hello, world" [level=2] [ref=e17]
+      - paragraph [ref=e18]: A short note on why this site exists and what I plan to write about here.
+  - contentinfo [ref=e19]:
+    - generic [ref=e20]:
+      - paragraph [ref=e21]: © 2026 Dylan Norquist
+      - link "business@dylannorquist.codes" [ref=e22] [cursor=pointer]:
+        - /url: mailto:business@dylannorquist.codes
+  - generic [ref=e25]:
+    - button "Menu" [ref=e26]:
+      - img [ref=e28]
+      - generic: Menu
+    - button "Inspect" [ref=e32]:
+      - img [ref=e34]
+      - generic: Inspect
+    - button "Audit" [ref=e36]:
+      - img [ref=e38]
+      - generic: Audit
+    - button "Settings" [ref=e41]:
+      - img [ref=e43]
+      - generic: Settings

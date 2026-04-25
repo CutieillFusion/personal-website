@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Dylan Norquist">
+  <main class="page-container hero">
+    <h1 class="page-title">Hi, I'm Dylan.</h1>
+    <p class="page-sub">
+      I'm a CS student at MSOE and an Applied AI Intern at Direct Supply.
+      I write about machine learning, software, and whatever side project I'm
+      currently obsessed with.
+    </p>
+
+    <div class="cta-row">
+      <a class="cta-primary" href="/blog">Read the blog</a>
+      <a class="cta-secondary" href="/about">More about me</a>
+    </div>
+  </main>
+</Base>
+
+<style>
+  .hero {
+    padding-top: 96px;
+  }
+
+  .cta-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .cta-primary,
+  .cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+
+  .cta-primary {
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .cta-primary:hover {
+    transform: translateY(-1px);
+  }
+
+  .cta-secondary {
+    border: 1px solid var(--border);
+    color: var(--fg);
+  }
+
+  .cta-secondary:hover {
+    background: rgba(17, 17, 17, 0.04);
+  }
+
+  @media (max-width: 768px) {
+    .hero {
+      padding-top: 64px;
+    }
+  }
+</style>
