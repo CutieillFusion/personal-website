@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 ---
 
-<Base title="Resume — Dylan Norquist" description="Dylan Norquist's resume: ML researcher at DreamcatcherAI, M.S. Machine Learning and B.S. Computer Science at MSOE.">
+<Base title="Resume - Dylan Norquist" description="Dylan Norquist's resume: ML researcher at DreamcatcherAI, M.S. Machine Learning and B.S. Computer Science at MSOE.">
   <main class="page-container">
     <header class="resume-header">
       <h1 class="page-title">Dylan Norquist</h1>
@@ -38,7 +38,7 @@ import Base from '../layouts/Base.astro';
           <div class="resume-role">
             <div class="resume-role-head">
               <div class="resume-entry-title">ML Researcher</div>
-              <span class="resume-meta">Apr 2026 – Present</span>
+              <span class="resume-meta">Apr 2026 - Present</span>
             </div>
             <p>Making LLMs fast. Research and engineering on LLM inference performance.</p>
           </div>
@@ -51,25 +51,38 @@ import Base from '../layouts/Base.astro';
           <div class="resume-role">
             <div class="resume-role-head">
               <div class="resume-entry-title">Applied AI Intern</div>
-              <span class="resume-meta">Jan 2025 – Apr 2026</span>
+              <span class="resume-meta">Jan 2025 - Apr 2026</span>
             </div>
             <p>
-              Built full-stack prototypes in Python, PostgreSQL, and React
-              applying AI to problems in the elderly care industry.
-              Milwaukee, WI.
+              Built internal AI tools for the elderly care industry: an
+              agentic invoice validation engine (40 hrs/supplier saved),
+              automated product tagging (cut manual labeling 93%), a product
+              grouping system (160 hrs/week saved), and an integration
+              testing framework.
             </p>
           </div>
           <div class="resume-role">
             <div class="resume-role-head">
               <div class="resume-entry-title">Data Science Intern</div>
-              <span class="resume-meta">Aug 2024 – Jan 2025</span>
+              <span class="resume-meta">Aug 2024 - Jan 2025</span>
             </div>
+            <p>
+              Built a residual embedding finetuning model for product
+              equivalency (+38% accuracy), used LLMs to expand abbreviations
+              in unstructured product data, and wrote a menu PDF parser for
+              recipes and nutrition.
+            </p>
           </div>
           <div class="resume-role">
             <div class="resume-role-head">
               <div class="resume-entry-title">Software Engineering Intern</div>
-              <span class="resume-meta">Jun 2024 – Aug 2024</span>
+              <span class="resume-meta">Jun 2024 - Aug 2024</span>
             </div>
+            <p>
+              Maintained a PostgreSQL/C#/React full-stack app and integrated
+              internal AI for product equivalency, saving nursing homes
+              thousands in procurement and rebate claims.
+            </p>
           </div>
         </div>
       </div>
@@ -84,13 +97,13 @@ import Base from '../layouts/Base.astro';
           <div class="resume-role">
             <div class="resume-role-head">
               <div class="resume-entry-title">M.S. Machine Learning</div>
-              <span class="resume-meta">Aug 2025 – Aug 2026</span>
+              <span class="resume-meta">Aug 2025 - Aug 2026</span>
             </div>
           </div>
           <div class="resume-role">
             <div class="resume-role-head">
               <div class="resume-entry-title">B.S. Computer Science</div>
-              <span class="resume-meta">Aug 2023 – May 2026</span>
+              <span class="resume-meta">Aug 2023 - May 2026</span>
             </div>
           </div>
         </div>
@@ -103,9 +116,12 @@ import Base from '../layouts/Base.astro';
       <div class="resume-entry">
         <div class="resume-entry-head">
           <h3 class="resume-entry-org">SMEARGLE</h3>
-          <span class="resume-meta">2026</span>
+          <div class="resume-meta-group">
+            <span class="resume-prize">$11k</span>
+            <span class="resume-meta">2026</span>
+          </div>
         </div>
-        <div class="resume-entry-title">2nd place — ROSIE Supercomputer Super Challenge</div>
+        <div class="resume-entry-title">2nd place at the ROSIE Supercomputer Superchallenge</div>
         <p>
           Model-based speculative decoding that surpasses the previous SOTA
           (EAGLE3). Preliminary results presented at the Midwest Instruction
@@ -116,9 +132,12 @@ import Base from '../layouts/Base.astro';
       <div class="resume-entry">
         <div class="resume-entry-head">
           <h3 class="resume-entry-org">Proactive Urban Forestry Management</h3>
-          <span class="resume-meta">2026</span>
+          <div class="resume-meta-group">
+            <span class="resume-prize">$9k</span>
+            <span class="resume-meta">2026</span>
+          </div>
         </div>
-        <div class="resume-entry-title">3rd place — ROSIE Supercomputer Super Challenge</div>
+        <div class="resume-entry-title">3rd place at the ROSIE Supercomputer Superchallenge</div>
         <p>
           ML system for the City of Milwaukee that prioritizes tree pruning,
           shifting the city's forestry workflow from reactive to proactive.
@@ -126,6 +145,34 @@ import Base from '../layouts/Base.astro';
           presented the work at MICS 2026.
         </p>
       </div>
+    </section>
+
+    <section class="resume-section">
+      <h2 class="resume-heading">Outside of Work</h2>
+
+      <ul class="resume-list">
+        <li>
+          <strong>Rock Climbing.</strong> I love indoor competitions and outdoor climbing (except lead climbing).
+        </li>
+        <li>
+          <strong>Board &amp; card games.</strong> <em>Betrayal at
+          House on the Hill</em> is the favorite, with a close second
+          in <em>Poker</em>.
+        </li>
+        <li>
+          <strong>Puzzles.</strong> Rubik's cubes and whatever else I
+          can find (sometimes puzzles find me).
+        </li>
+        <li>
+          <strong>Minecraft.</strong> On and off since 2010, ~15 years
+          deep. Recently got into MCSR and I'm quite bad at it.
+        </li>
+        <li>
+          <strong>Challenges.</strong> Terraria Legendary Mode
+          summoner-only, BTD6 CHIMPS, Borderlands 2 one-lifes, 100%
+          Skyrim (haven't finished it yet), and more.
+        </li>
+      </ul>
     </section>
 
   </main>
@@ -200,6 +247,24 @@ import Base from '../layouts/Base.astro';
     white-space: nowrap;
   }
 
+  .resume-meta-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .resume-prize {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    background: #16a34a;
+    color: #ffffff;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
   .resume-entry p {
     color: var(--fg-muted);
     font-size: 0.95rem;
@@ -233,6 +298,31 @@ import Base from '../layouts/Base.astro';
   .resume-role .resume-entry-title {
     margin-top: 0;
     margin-bottom: 4px;
+    color: var(--fg);
+  }
+
+  .resume-blurb {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+
+  .resume-list {
+    list-style: disc;
+    margin: 0 0 0 1.4em;
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+  }
+
+  .resume-list li {
+    margin-bottom: 6px;
+  }
+
+  .resume-list li:last-child {
+    margin-bottom: 0;
+  }
+
+  .resume-list strong {
     color: var(--fg);
   }
 

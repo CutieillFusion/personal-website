@@ -1,0 +1,123 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Gradtuity",
+  "description": "A from-scratch tensor autograd engine using Triton GPU kernels and raw CUDA memory.",
+  "author": { "@type": "Person", "name": "Dylan Norquist" },
+  "url": "https://dylannorquist.codes/projects/gradtuity",
+  "mainEntityOfPage": "https://dylannorquist.codes/projects/gradtuity"
+};
+---
+
+<Base title="Gradtuity - Dylan Norquist" description="A from-scratch tensor autograd engine using Triton GPU kernels and raw CUDA memory.">
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <main class="page-container">
+    <article>
+      <a href="/projects" class="back-link">&larr; Back to projects</a>
+
+      <div class="post-meta">
+        <span class="meta-tag">Python</span>
+        <span class="meta-tag">Triton</span>
+        <span class="meta-tag">ML</span>
+        <a class="icon-link source-link" href="https://github.com/CutieillFusion/Gradtuity" target="_blank" rel="noopener noreferrer" aria-label="Source on GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+      </div>
+
+      <h1 class="page-title">Gradtuity</h1>
+
+      <div class="prose">
+        <p>
+          Gradtuity is a tensor autograd engine I built from scratch to
+          understand what PyTorch is doing under the hood. It exposes a minimal
+          PyTorch-like API (<code>Tensor</code>, <code>Module</code>,
+          <code>Linear</code>, <code>Conv2d</code>, <code>MaxPool2d</code>,
+          <code>MLP</code>, <code>CNN</code>), but everything below that
+          surface is mine: GPU memory via raw CUDA
+          (<code>ctypes</code> + <code>libcudart.so</code>), forward and
+          backward kernels written in Triton, and an autograd engine that walks
+          the op graph in reverse topological order on
+          <code>backward()</code>.
+        </p>
+
+        <p>
+          The hardest part wasn&apos;t the math or the kernels. It was
+          the memory plumbing. PyTorch lets you forget that &quot;a tensor on
+          the GPU&quot; is really a pointer into an opaque allocator with
+          reference-counted lifetimes. Once you do it yourself with
+          <code>cudaMalloc</code> / <code>cudaFree</code> and have to track who
+          owns what across graph nodes, the elegance of <code>requires_grad</code>
+          stops feeling like magic and starts feeling like engineering.
+        </p>
+
+        <pre data-language="mermaid">{`flowchart TB
+    subgraph api [Public API]
+        Tensor
+        Module
+        functional
+    end
+    subgraph core [Core]
+        tensor_impl[Tensor + autograd]
+        nn_layers[Linear, Conv2d, etc.]
+    end
+    subgraph kernels [Triton Kernels]
+        matmul
+        elemwise
+        conv_pool
+        reduce_optim
+    end
+    subgraph cuda [GPU]
+        cuda_mem[cuda_mem: malloc, copy]
+    end
+    api --> core
+    core --> kernels
+    kernels --> cuda`}</pre>
+
+        <p>
+          What&apos;s next: more optimizers (SGD only right now), better
+          convolution kernels, and a benchmark suite that actually compares
+          against PyTorch on equal hardware.
+        </p>
+      </div>
+    </article>
+  </main>
+</Base>
+
+<style>
+  .back-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--fg-soft);
+    margin-bottom: 32px;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .post-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .meta-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--fg-soft);
+  }
+
+  .source-link {
+    margin-left: auto;
+  }
+</style>

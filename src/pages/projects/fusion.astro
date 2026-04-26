@@ -1,0 +1,112 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Fusion",
+  "description": "A small Linux-only programming language with an LLVM backend, an LSP, and a VSCode extension. Trains a microGPT end-to-end.",
+  "author": { "@type": "Person", "name": "Dylan Norquist" },
+  "url": "https://dylannorquist.codes/projects/fusion",
+  "mainEntityOfPage": "https://dylannorquist.codes/projects/fusion"
+};
+---
+
+<Base title="Fusion - Dylan Norquist" description="A small Linux-only programming language with an LLVM backend, an LSP, and a VSCode extension. Trains a microGPT end-to-end.">
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <main class="page-container">
+    <article>
+      <a href="/projects" class="back-link">&larr; Back to projects</a>
+
+      <div class="post-meta">
+        <span class="meta-tag">C++</span>
+        <span class="meta-tag">Compiler</span>
+        <span class="meta-tag">ML</span>
+        <a class="icon-link source-link" href="https://github.com/CutieillFusion/Fusion" target="_blank" rel="noopener noreferrer" aria-label="Source on GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+      </div>
+
+      <h1 class="page-title">Fusion</h1>
+
+      <div class="prose">
+        <p>
+          Fusion is a small Linux-only programming language whose primary
+          purpose is calling into existing C and CUDA libraries with as little
+          ABI friction as possible. Programs compile to LLVM IR, are
+          JIT-executed against a C runtime, and can dynamically load any
+          <code>.so</code> library (including <code>libcudart</code> and
+          <code>libnccl</code>) through <code>libffi</code>. The
+          proof-of-life: a Fusion program that trains a microGPT end-to-end.
+        </p>
+
+        <p>
+          The interesting part isn&apos;t the language design itself.
+          It&apos;s small and intentionally so, with structs, opaque types,
+          extern declarations, and a sequential top-level. The interesting part
+          is that &quot;compile, JIT, FFI to C&quot; is a much smaller surface
+          area than &quot;write a real backend,&quot; while still being
+          expressive enough to do real GPU work. The tradeoff is that you live
+          or die by your runtime, and a lot of effort went into making
+          <code>libffi</code> shims feel native rather than bolted on.
+        </p>
+
+        <p>
+          The piece I expected to hate and ended up enjoying most was the
+          tooling: the LSP and the VSCode extension. Once you have language
+          tooling around a toy compiler, the toy stops feeling like a parser
+          exercise and starts feeling like a real language.
+        </p>
+
+        <pre data-language="mermaid">{`flowchart LR
+    src[".fusion source"] --> lex[Lexer]
+    lex --> parse[Parser]
+    parse --> sem[Semantic checks]
+    sem --> ir[LLVM IR]
+    ir --> jit[JIT execute]
+    jit --> rt["C runtime + FFI"]`}</pre>
+
+        <p>
+          What&apos;s next: bigger benchmarks on real ML workloads, and porting
+          the runtime so it isn&apos;t Linux-locked.
+        </p>
+      </div>
+    </article>
+  </main>
+</Base>
+
+<style>
+  .back-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--fg-soft);
+    margin-bottom: 32px;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .post-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .meta-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--fg-soft);
+  }
+
+  .source-link {
+    margin-left: auto;
+  }
+</style>

@@ -1,0 +1,101 @@
+---
+import Base from '../../layouts/Base.astro';
+
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "3D Game Engine",
+  "description": "An in-progress 3D game engine, currently swapping its render backend from DirectX to OpenGL.",
+  "author": { "@type": "Person", "name": "Dylan Norquist" },
+  "url": "https://dylannorquist.codes/projects/3d-game-engine",
+  "mainEntityOfPage": "https://dylannorquist.codes/projects/3d-game-engine"
+};
+---
+
+<Base title="3D Game Engine - Dylan Norquist" description="An in-progress 3D game engine, currently swapping its render backend from DirectX to OpenGL.">
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <main class="page-container">
+    <article>
+      <a href="/projects" class="back-link">&larr; Back to projects</a>
+
+      <div class="post-meta">
+        <span class="meta-tag">C++</span>
+        <span class="meta-tag">Game Engine</span>
+        <a class="icon-link source-link" href="https://github.com/CutieillFusion/3D-Game-Engine" target="_blank" rel="noopener noreferrer" aria-label="Source on GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+      </div>
+
+      <h1 class="page-title">3D Game Engine</h1>
+
+      <div class="prose">
+        <p>
+          Before this, I tried to write a
+          <a href="https://github.com/CutieillFusion/SDLGame">2D game engine on
+          top of SDL</a>. It got far enough to render sprites and handle input,
+          but not far enough to feel like a real engine. Somewhere
+          along the way I realized the part I actually wanted to build was the
+          3D pipeline, not another 2D framework. So I started over.
+        </p>
+
+        <p>
+          The 3D engine started on DirectX, because the tutorial series I was
+          following used it. It&apos;s currently going through a render-system
+          swap to OpenGL, mostly because cross-platform performance matters
+          more to me than Windows-only ergonomics. Eventually I&apos;d like the
+          renderer abstraction to support multiple graphics backends so the
+          engine works well on Linux too.
+        </p>
+
+        <p>
+          Honest disclosure: this repo predates my understanding of git
+          workflows, so everything still lives on <code>master</code> with no
+          branches. Treat it as a learning artifact-in-progress more than a
+          polished engine.
+        </p>
+
+        <p>
+          What&apos;s next: finish the OpenGL backend, get a basic scene graph
+          working, then start on physics. Collision detection (GJK + EPA)
+          is the first thing I want to actually understand instead of copy.
+        </p>
+      </div>
+    </article>
+  </main>
+</Base>
+
+<style>
+  .back-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--fg-soft);
+    margin-bottom: 32px;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover {
+    color: var(--accent);
+  }
+
+  .post-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .meta-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--fg-soft);
+  }
+
+  .source-link {
+    margin-left: auto;
+  }
+</style>

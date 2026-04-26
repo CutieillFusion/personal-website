@@ -13,10 +13,10 @@ npm run preview  # preview the production build locally
 
 ## Layout
 
-- `src/layouts/Base.astro` — shared shell (nav, footer, global styles)
-- `src/pages/` — top-level pages: home, about, projects, resume, blog index
-- `src/pages/blog/` — one `.astro` file per blog post
-- `public/` — static assets served at the site root
+- `src/layouts/Base.astro` - shared shell (nav, footer, global styles)
+- `src/pages/` - top-level pages: home, about, projects, resume, blog index
+- `src/pages/blog/` - one `.astro` file per blog post
+- `public/` - static assets served at the site root
 
 ## Adding a blog post
 

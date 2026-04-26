@@ -4,23 +4,34 @@ import Base from '../layouts/Base.astro';
 
 <Base title="Dylan Norquist">
   <main class="page-container hero">
-    <h1 class="page-title">Hi, I'm Dylan.</h1>
+    <h1 class="page-title">Hi, I'm Dylan Norquist.</h1>
     <p class="page-sub">
-      I'm a CS student at MSOE and an Applied AI Intern at Direct Supply.
-      I write about machine learning, software, and whatever side project I'm
-      currently obsessed with.
+      I'm a Researcher at <a class="hero-link" href="https://dreamcatcher.co" target="_blank" rel="noopener noreferrer">DreamcatcherAI</a>.
+ 
+      <br />
+      This is my personal page where my opinions are my own and are unaffiliated with my company. I write about machine learning, software, new papers, and whatever side project I'm currently obsessed with. 
     </p>
-
-    <div class="cta-row">
-      <a class="cta-primary" href="/blog">Read the blog</a>
-      <a class="cta-secondary" href="/about">More about me</a>
-    </div>
   </main>
 </Base>
 
 <style>
   .hero {
     padding-top: 96px;
+  }
+
+  .hero-link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: rgba(17, 17, 17, 0.25);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease, text-decoration-thickness 0.15s ease;
+  }
+
+  .hero-link:hover {
+    color: var(--accent);
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 2px;
   }
 
   .cta-row {

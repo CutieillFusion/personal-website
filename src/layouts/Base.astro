@@ -6,7 +6,7 @@ interface Props {
 
 const {
   title,
-  description = "Dylan Norquist — engineer and student writing about ML, software, and side projects.",
+  description = "Dylan Norquist - engineer and student writing about ML, software, and side projects.",
 } = Astro.props;
 
 const currentPath = Astro.url.pathname;
@@ -14,7 +14,6 @@ const canonicalURL = new URL(currentPath, Astro.site);
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
   { href: "/projects", label: "Projects" },
   { href: "/blog", label: "Blog" },
   { href: "/resume", label: "Resume" },
@@ -216,6 +215,11 @@ const isActive = (href: string) =>
     font-weight: 600;
     letter-spacing: -0.01em;
     color: var(--fg);
+    transition: color 0.15s ease;
+  }
+
+  .nav-logo:hover {
+    color: var(--accent);
   }
 
   .nav-links {
