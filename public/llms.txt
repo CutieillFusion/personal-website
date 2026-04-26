@@ -1,0 +1,21 @@
+# Dylan Norquist
+
+> Personal site of Dylan Norquist, Researcher at DreamcatcherAI. Notes on
+> machine learning, software, papers, and side projects. Opinions are personal
+> and unaffiliated with employer.
+
+## Pages
+
+- [Home](https://dylannorquist.codes/): Short bio and intro.
+- [Projects](https://dylannorquist.codes/projects): Index of side projects.
+- [Resume](https://dylannorquist.codes/resume): Background, experience, and education.
+
+## Projects
+
+- [SMEARGLE](https://dylannorquist.codes/projects/smeargle): Model-based speculative decoding that surpasses the previous SOTA (EAGLE3).
+- [Grimoire](https://dylannorquist.codes/projects/grimoire): A coding-agent CLI built with Textual, compatible with a Claude subscription.
+- [Fusion](https://dylannorquist.codes/projects/fusion): A programming language with an LSP and VSCode extension, capable of training a microGPT.
+- [Gradtuity](https://dylannorquist.codes/projects/gradtuity): A from-scratch tensor autograd engine using Triton GPU kernels.
+- [Neural Network from Scratch](https://dylannorquist.codes/projects/neural-network-from-scratch): A 28x28 grayscale digit recognizer written from scratch in C++.
+- [Weather App](https://dylannorquist.codes/projects/weather-app): A KATA problem from Direct Supply.
+- [3D Game Engine](https://dylannorquist.codes/projects/3d-game-engine): An in-progress 3D game engine, currently swapping its render backend.
