@@ -1,6 +1,6 @@
 # Dylan Norquist
 
-> Personal site of Dylan Norquist, Researcher at DreamcatcherAI. Notes on
+> Personal site of Dylan Norquist, Co-Founder at DreamcatcherAI. Notes on
 > machine learning, software, papers, and side projects. Opinions are personal
 > and unaffiliated with employer.
 
